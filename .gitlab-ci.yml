@@ -8,7 +8,6 @@ stages:
     - deploy
  
 before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - ssh-add <(echo "$SSH_KEY")
   - mkdir -p ~/.ssh
@@ -22,7 +21,7 @@ before_script:
      script: # 这个就是 操作命令 或者写脚本路径
       - echo `pwd` # 我只是输出下观察写路径
       - npm install -g hexo-cli  # 安装 hexo-cli
-      - hexo g  # 打包生成 dist 文件夹
+      - hexo clean && hexo g  # 打包生成 dist 文件夹
  
  # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
 cache:
