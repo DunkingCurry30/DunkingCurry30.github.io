@@ -9,7 +9,7 @@ stages:
      
 before_script:
   - echo "gitlab-ci start..."
-  - eval "ssh-agent -s"
+  - eval `ssh-agent -s`
   - ssh-add <(echo "$SSH_KEY")
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *ntStrictHostKeyChecking nonn" > ~/.ssh/config'
