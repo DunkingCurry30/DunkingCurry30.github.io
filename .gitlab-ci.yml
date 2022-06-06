@@ -21,7 +21,8 @@ build_job:
   script: # 这个就是操作命令 或者写脚本路径
   - echo `pwd` # 我只是输出下观察写路径
   - npm install -g hexo-cli  # 安装 hexo-cli
-  - hexo clean && hexo g  # 打包生成 dist 文件夹
+  - npm install 
+  - hexo clean && hexo g # 打包生成 dist 文件夹
  
  # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
 # 第二个任务 就是 专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
