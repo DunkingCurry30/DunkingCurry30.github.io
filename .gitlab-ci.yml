@@ -25,7 +25,7 @@ build_job:
   - hexo clean && hexo g # 打包生成 dist 文件夹
  
  # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
-# 第二个任务 就是 专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
+# 第二个任务 就是专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
 deploy_job:
      stage: deploy  # 这一个stage：的值就是上面的 stages下的第一个 deploy
      tags:
