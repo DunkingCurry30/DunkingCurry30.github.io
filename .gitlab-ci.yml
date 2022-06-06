@@ -6,31 +6,24 @@
 stages:
     - build    
     - deploy
- 
-before_script:
+     
+build_job:
+  
+  stage: build  # 这一个stage：的值就是上面的 stages下的第一个 build
+  tags: # tag 在注册的时候，有提到过，分两步骤，第一个是 buil,所以这里也对应上，注册的时候是自定义的名称
+  - build
+  script: # 这个就是 操作命令 或者写脚本路径
   - echo "gitlab-ci start..."
   - ssh-add <(echo "$SSH_KEY")
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *ntStrictHostKeyChecking nonn" > ~/.ssh/config'
- 
-   # 第一步打包， 
-   build: # build:这个名称自定义
-     stage: build  # 这一个stage：的值就是上面的 stages下的第一个 build
-     tags: # tag 在注册的时候，有提到过，分两步骤，第一个是 buil,所以这里也对应上，注册的时候是自定义的名称
-      - build
-     script: # 这个就是 操作命令 或者写脚本路径
-      - echo `pwd` # 我只是输出下观察写路径
-      - npm install -g hexo-cli  # 安装 hexo-cli
-      - hexo clean && hexo g  # 打包生成 dist 文件夹
+  - echo `pwd` # 我只是输出下观察写路径
+  - npm install -g hexo-cli  # 安装 hexo-cli
+  - hexo clean && hexo g  # 打包生成 dist 文件夹
  
  # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
-cache:
-  paths:
-   - node_modules/
-   - public/
- 
-   # 第二个任务 就是 专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
-   deploy:
+# 第二个任务 就是 专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
+deploy_job:
      stage: deploy  # 这一个stage：的值就是上面的 stages下的第一个 deploy
      tags:
        - deploy # tag 在注册的时候，有提到过，分两步骤，第二个个是 deploy,所以这里也对应上，注册的时候是自定义的名称
