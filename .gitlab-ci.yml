@@ -8,7 +8,7 @@ stages:
     - deploy
  
 before_script:
-  - eval $(ssh-agent -s)
+  - echo "gitlab-ci start..."
   - ssh-add <(echo "$SSH_KEY")
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *ntStrictHostKeyChecking nonn" > ~/.ssh/config'
