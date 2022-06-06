@@ -36,5 +36,5 @@ deploy_job:
       - chmod 700 ~/.ssh
       - ssh-keyscan 81.69.231.145 > ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts 
-      - scp -r /html/ root@81.69.231.145:/opt/docker/nginx  # 将打包好的文件上到发布项目的服务器中的。放到nginx能访问到的文件夹下
+      - scp -r ./html/ root@81.69.231.145:/opt/docker/nginx  # 将打包好的文件上到发布项目的服务器中的。放到nginx能访问到的文件夹下
       #  我写的是 122端口，这是我的端口，如果没有改过，默认是22  ,scp 不需要 写 `—R 122`
