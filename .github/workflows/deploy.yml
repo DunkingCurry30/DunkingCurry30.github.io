@@ -15,10 +15,22 @@ jobs:
         uses: actions/checkout@v1
         with:
           ref: myblog
+
       - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v1
         with:
           version: ${{ matrix.node_version }}
+
+      # 缓存node_modules，避免每次跑action都要重新下载
+      - name: Cache node modules
+        uses: actions/cache@v1    
+        id: cache    
+        with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
       - name: Setup hexo
         env:
           ACTION_DEPLOY_KEY: ${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}
@@ -34,4 +46,4 @@ jobs:
       - name: Hexo deploy
         run: |
           hexo clean
-          hexo d
+          hexo g
