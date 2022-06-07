@@ -270,9 +270,43 @@ ssh-keygen -t rsa -C "niceday@163.com"
 
 
 
-# GitLab 同步 Github
+# 将 GitLab 提交同步至 Github
 
 - 参考： [GitLab和GitHub的双向同步](https://www.cnblogs.com/sxdcgaq8080/p/10530176.html) 
+- 提高 `Github` 访问速度： [github域名解析优化](https://blog.csdn.net/wplblog/article/details/120967043?utm_medium=distribute.pc_feed_404.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-120967043-blog-null.pc_404_mixedpudn&depth_1-utm_source=distribute.pc_feed_404.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-120967043-blog-null.pc_404_mixedpud) 
 
-> 1. 在 `gitlab` 上创建一个 `token` 
+> 1. 在 `github` 上创建一个 `token` 
 
+登录 Github，找到 `settings - Developer settings - Personal access tokens` 设置，创建包含`repo` 权限的新`token` ，生成的 `token` 记录下来，网站不会保存
+
+![1654590060334](../blog-assets/Gitlab搭建及实现CI/1654590060334.png)
+
+
+
+> 2. 获取要同步的 Github 库
+
+在 Github 上找到要同步的项目库，获取版本库链接
+
+![1654590334074](../blog-assets/Gitlab搭建及实现CI/1654590334074.png)
+
+
+
+将该链接内容改动如下，在`github.com`前拼接 `用户名:步骤1的token@` 
+
+```http
+https://你的用户名:你的token@github.com/DunkingCurry30/DunkingCurry30.github.io.git
+```
+
+
+
+> 3. Gitlab配置Github库
+
+登录 Gitlab，选择要同步的项目 `设置 - 仓库 - 推送到远程仓库 ` ，填写上面得到的链接后保存修改
+
+![1654591468606](../blog-assets/Gitlab搭建及实现CI/1654591468606.png)
+
+
+
+点击`现在更新` 立即进行同步，更新成功后查看 github，成功同步
+
+![1654591646389](../blog-assets/Gitlab搭建及实现CI/1654591646389.png)
