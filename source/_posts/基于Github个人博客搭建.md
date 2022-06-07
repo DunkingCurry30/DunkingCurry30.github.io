@@ -195,4 +195,9 @@ push 至 Pages 仓库后，在 仓库 `Action` 界面下查看自动化流水线
 
 
 
-> Hexo 提交代码同时部署至 `云服务器` 和 `Github Pages` 可参考该篇文章： [docker 部署 gitlab gitlab-runner 实现 CI](https://dunkingcurry30.github.io/2022/06/07/Gitlab搭建及实现CI/) 
+> Hexo 提交代码同时部署至 `云服务器` 和 `Github Pages` 可参考该篇文章： [docker 部署 gitlab gitlab-runner 实现 CI](/2022/06/07/Gitlab搭建及实现CI/) 
+
+
+
+
+
