@@ -89,6 +89,8 @@ ActionMailer::Base.smtp_settings
 Notify.test_email('157468143@qq.com','Hello World', 'This is a test message').deliver_now
 ```
 
+
+
 # GitLab创建和拉取项目
 
 > 1. 登录`GitLab` 创建项目 `myblog`  ，建议勾选创建 `README.md` ，创建完成后建议再新建一个`dev` 分支（因`GitLab` 默认 `master` 分支受保护，只能拉取无法推送）
@@ -110,9 +112,11 @@ git config user.email 邮箱
 
 ![1654512603051](../blog-assets/Gitlab搭建及实现CI/1654512603051.png)
 
-# 
+
 
 # GitLab-CI 自动化部署
+
+> **1. 安装及注册 gitlab-runner**
 
 首先，安装 `gitlab-runner` 
 
@@ -142,7 +146,9 @@ check_interval = 0
             - ./gitlab-runner/config:/etc/gitlab-runner 
 ```
 
-执行`docker-compose` 命令
+执行`docker-compose` 命令，容器启动成功后注册 `runner` ，
+
+其中，注册流程可参考： [ docker安装gitlab-runner自动化部署过程](https://blog.csdn.net/weixin_39934640/article/details/110132281) 
 
 ```bash
 docker-compose up -d
@@ -153,8 +159,110 @@ docker exec -it gitlab-runner bash
 gitlab-runner register
 ```
 
-注册流程可参考： [ docker安装gitlab-runner自动化部署过程](https://blog.csdn.net/weixin_39934640/article/details/110132281) 
-
 注册成功后，可在`GitLab—设置—CI/CD` 中查看 `runner` 状态是否可用
 
 ![20220607095216](../blog-assets/Gitlab搭建及实现CI/20220607095216.png)
+
+
+
+> **2. 在项目根目录下编写`.gitlab-ci.yml` 脚本** 
+
+内容如下（第一次写，看不明白没关系，弄懂 `stage` ，`job` 的概念就行），后续会详细解析该脚本的配置
+
+```yaml
+## stages：通俗讲：就是将项目，从打包部署，分几个作业job，比如这里就分两个步骤，一个 build,打包编译， deploy：部署
+## 在每个作业执行之前，有一些通用的执行操作，例如 SSH 认证配置、缓存等，放在 before_secript、cache 中
+# image: node # 就是所依赖的环境 在 gitrunner-cli注册的时候，已经写了此处可以省略不写
+stages:
+    - build    
+    - deploy
+     
+before_script:
+  - echo "gitlab-ci start..."
+  - eval `ssh-agent -s` # 设置 SSH 免密登录
+  - ssh-add <(echo "$SSH_KEY")
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan 部署服务器IP > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts 
+build_job:
+  
+  stage: build  # 这一个stage：的值就是上面的 stages下的第一个 build
+  tags: # tag 在注册的时候，有提到过，分两步骤，第一个是 buil,所以这里也对应上，注册的时候是自定义的名称
+  - build
+  script: # 这个就是操作命令 或者写脚本路径
+  - npm install -g cnpm --registry=https://registry.npm.taobao.org #切换至cnpm，提升速度
+  - echo `pwd` # 输出当前路径
+  - cnpm install -g hexo-cli  # 安装 hexo-cli
+  - cnpm install 
+  - hexo clean && hexo g # 打包生成 public 文件夹
+ 
+# 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要再次安装一次  
+cache:
+  paths:
+   - node_modules/
+   - public/  
+
+# 第二个任务 就是专业词语 job ,第一个是先 build ,这个跟上面的build一样名称自定义
+deploy_job:
+     stage: deploy  # 这一个stage：的值就是上面的 stages下的第一个 deploy
+     tags:
+       - deploy # tag 在注册的时候，有提到过，分两步骤，第二个个是 deploy,所以这里也对应上，注册的时候是自定义的名称
+     script:
+      - pwd #  也输出下路径
+      - mv public html
+      - ls
+      - scp -r ./html/ root@部署服务器IP:/opt/docker/nginx  # 将打包好的文件上到发布项目的服务器中的。放到nginx能访问到的文件夹下
+      - echo "gitlab-ci success."
+```
+
+
+
+脚本编写完成后，可以将内容放到 `GitLab` 进行语法检测，看能否正确识别出各个步骤操作
+
+![1654581145899](../blog-assets/Gitlab搭建及实现CI/1654581145899.png)
+
+
+
+> **3. 设置SSH免密登录**
+
+上述脚本中使用了一个变量 `SSH_KEY` ，该变量为 `gitlab-runner` 服务器的 `ssh私钥` 信息。
+
+这里简单解释一下，我们知道 `git-runner` 要使用 SSH 登录项目部署的服务器，需要创建一对公私钥，将其公钥添加到 `部署服务器` 的 ssh 公钥配置中，登录时再通过私钥去做验证(参考： [Linux - 配置SSH免密登入](https://blog.csdn.net/weixin_46232508/article/details/106397322) )
+
+因此我们在 `gitlab-runner` 安装的服务器上，输入如下命令
+
+```bash
+# 生成公私钥
+ssh-keygen -t rsa -C "niceday@163.com"
+```
+
+- 将 `~/.ssh` 目录下的公钥 `id_rsa.pub` 的内容添加至 部署项目的服务器 `~/.ssh/anthorized_keys` 中
+- 将目录下私钥 `id_rsa` 的内容添加至变量 `SSH_KEY` 中
+
+![1654583291460](../blog-assets/Gitlab搭建及实现CI/1654583291460.png)
+
+
+
+> **4. push 脚本到 Gitlab**
+
+验证无误后，就将 `.gitlab-ci.yml` 脚本 push 到远程仓库，在`GitLab—项目—CI/CD` 下就可以查看自动化作业执行的情况了
+
+![1654581464922](../blog-assets/Gitlab搭建及实现CI/1654581464922.png)
+
+
+
+点击每个作业步，也可以查看具体的命令执行信息
+
+![1654581569487](../blog-assets/Gitlab搭建及实现CI/1654581569487.png)
+
+
+
+> **5. 验证执行结果**
+
+流水线显示执行成功后，可通过浏览器验证内容是否更新，也可上服务器看文件是否更新
+
+![1654584003746](../blog-assets/Gitlab搭建及实现CI/1654584003746.png)
+
+**至此，大功告成！**
+
