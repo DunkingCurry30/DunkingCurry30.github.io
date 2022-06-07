@@ -1,5 +1,5 @@
 ---
-title: 基于docker 搭建 GitLab 及 GitLab-runner 实现 CI
+title: docker部署gitLab gitLab-runner实现 CI
 ---
 # GitLab私服搭建
 
