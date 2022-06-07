@@ -41,9 +41,10 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           git config --global user.email "DunkingCurry30"
           git config --global user.name "157468143@qq.com"
-          npm install hexo-cli -g
-          npm install
+          npm install -g cnpm --registry=https://registry.npm.taobao.org #切换至cnpm，提升速度
+          cnpm install hexo-cli -g
+          cnpm install
       - name: Hexo deploy
         run: |
           hexo clean
-          hexo g
+          hexo d
