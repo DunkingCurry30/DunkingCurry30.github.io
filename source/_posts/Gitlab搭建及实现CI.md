@@ -1,6 +1,3 @@
----
-title: GitLab搭建及实现CI
----
 # GitLab私服搭建
 
 GitLab 是一个用于仓库管理系统的开源项目，使用[Git](https://baike.baidu.com/item/Git)作为代码管理工具，并在此基础上搭建起来的Web服务 
@@ -154,4 +151,8 @@ gitlab-runner register
 ```
 
 注册流程可参考： [ docker安装gitlab-runner自动化部署过程](https://blog.csdn.net/weixin_39934640/article/details/110132281) 
+
+注册成功后，可在`GitLab—设置—CI/CD` 中查看 `runner` 状态是否可用
+
+![20220607095216](Gitlab搭建及实现CI.assets/20220607095216-1654567133405.png)
 
