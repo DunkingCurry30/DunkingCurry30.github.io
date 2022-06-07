@@ -136,9 +136,9 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
-          ref: myblog
+          ref: dev-dunkingcurry
 
       - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v1
@@ -150,10 +150,10 @@ jobs:
         uses: actions/cache@v1    
         id: cache    
         with:
-        path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+        	path: node_modules
+        	key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        	restore-keys: |
+          		${{ runner.os }}-node-
 
       - name: Setup hexo
         env:
@@ -192,3 +192,7 @@ push 至 Pages 仓库后，在 仓库 `Action` 界面下查看自动化流水线
 ![1654584003746](../blog-assets/基于Github个人博客搭建/1654584003746.png)
 
 **至此，大功告成！**
+
+
+
+> Hexo 提交代码同时部署至 `云服务器` 和 `Github Pages` 可参考该篇文章： [docker 部署 gitlab gitlab-runner 实现 CI](https://dunkingcurry30.github.io/2022/06/07/Gitlab搭建及实现CI/) 
