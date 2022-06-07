@@ -154,5 +154,5 @@ gitlab-runner register
 
 注册成功后，可在`GitLab—设置—CI/CD` 中查看 `runner` 状态是否可用
 
-![20220607095216](Gitlab搭建及实现CI.assets/20220607095216-1654567133405.png)
+![](../../blog-assets/Gitlab搭建及实现CI/20220607095216.png)
 
