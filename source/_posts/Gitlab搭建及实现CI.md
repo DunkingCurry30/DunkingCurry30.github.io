@@ -313,7 +313,7 @@ https://你的用户名:你的token@github.com/DunkingCurry30/DunkingCurry30.git
 
 
 
-> 至此，结合 [基于Hexo的个人博客搭建](https://dunkingcurry30.github.io/2022/06/07/基于Github个人博客搭建/) 可实现通过本地提交代码至 `Gitlab` 同时触发以下自动化流程 
+> 至此，结合 [基于Hexo的个人博客搭建](/2022/06/07/基于Github个人博客搭建/) 可实现通过本地提交代码至 `Gitlab` 同时触发以下自动化流程 
 >
 > - `Gitlab CI` 自动部署至云服务器
 > - `Gitlab` 提交同步 `Github` 自动部署至 `Github Pages` 
