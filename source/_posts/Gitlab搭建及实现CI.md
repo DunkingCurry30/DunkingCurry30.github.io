@@ -307,6 +307,6 @@ https://你的用户名:你的token@github.com/DunkingCurry30/DunkingCurry30.git
 
 
 
-点击`现在更新` 立即进行同步，更新成功后查看 github，成功同步
+点击 `现在更新` 立即进行同步，更新成功后查看 github，成功同步
 
 ![1654591646389](../blog-assets/Gitlab搭建及实现CI/1654591646389.png)
