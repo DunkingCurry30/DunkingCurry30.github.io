@@ -95,7 +95,7 @@ Notify.test_email('157468143@qq.com','Hello World', 'This is a test message').de
 
 > 1. 登录`GitLab` 创建项目 `myblog`  ，建议勾选创建 `README.md` ，创建完成后建议再新建一个`dev` 分支（因`GitLab` 默认 `master` 分支受保护，只能拉取无法推送）
 
-![1654511863688](C:\Users\DunkingCurry\AppData\Roaming\Typora\typora-user-images\1654511863688.png)
+![1654511863688](../blog-assets/Gitlab搭建及实现CI/1654511863688.png)
 
 > 2. 点击进入个人设置`SSH KEYS` ，添加本地 `id_rsa.pub` 公钥（公钥生成方式可参考`《基于hexo的个人博客搭建》` 中的 `配置本地git仓库` ）
 
@@ -271,4 +271,8 @@ ssh-keygen -t rsa -C "niceday@163.com"
 
 
 # GitLab 同步 Github
+
+- 参考： [GitLab和GitHub的双向同步](https://www.cnblogs.com/sxdcgaq8080/p/10530176.html) 
+
+> 1. 在 `gitlab` 上创建一个 `token` 
 
