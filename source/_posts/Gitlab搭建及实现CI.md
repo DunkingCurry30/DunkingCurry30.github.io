@@ -40,7 +40,7 @@ docker-compose up -d gitlab
 
 启动成功后，`ip:8998` 访问web端进行 Gitlab 设置新密码，使用`root` 账号登录进行使用
 
-![1654501915699](C:\Users\DunkingCurry\AppData\Roaming\Typora\typora-user-images\1654501915699.png)
+![1654501915699](../blog-assets/Gitlab搭建及实现CI/1654501915699.png)
 
 ## GitLab邮箱配置
 
@@ -94,7 +94,7 @@ Notify.test_email('157468143@qq.com','Hello World', 'This is a test message').de
 
 > 2. 点击进入个人设置`SSH KEYS` ，添加本地 `id_rsa.pub` 公钥（公钥生成方式可参考`《基于hexo的个人博客搭建》` 中的 `配置本地git仓库` ）
 
-![1654512220134](C:\Users\DunkingCurry\AppData\Roaming\Typora\typora-user-images\1654512220134.png)
+![1654512220134](../blog-assets/Gitlab搭建及实现CI/1654512220134.png)
 
 > 3. 本地创建一个myblog目录，右键点击` git bash` 执行以下命令
 
@@ -105,7 +105,7 @@ git config user.email 邮箱
 
 > 4. 在 `GitLab` 项目页面获取 `ssh链接`，可使用 `git clone` 拉取项目，切换分支后使用 `git push` 命令推送（或使用vscode等IDE工具的插件对仓库进行操作）
 
-![1654512603051](C:\Users\DunkingCurry\AppData\Roaming\Typora\typora-user-images\1654512603051.png)
+![1654512603051](../blog-assets/Gitlab搭建及实现CI/1654512603051.png)
 
 # 
 
@@ -154,5 +154,4 @@ gitlab-runner register
 
 注册成功后，可在`GitLab—设置—CI/CD` 中查看 `runner` 状态是否可用
 
-![](../../blog-assets/Gitlab搭建及实现CI/20220607095216.png)
-
+![20220607095216](../blog-assets/Gitlab搭建及实现CI/20220607095216.png)
