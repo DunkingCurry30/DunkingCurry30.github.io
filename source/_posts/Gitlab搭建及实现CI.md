@@ -228,7 +228,9 @@ deploy_job:
 
 上述脚本中使用了一个变量 `SSH_KEY` ，该变量为 `gitlab-runner` 服务器的 `ssh私钥` 信息。
 
-这里简单解释一下，我们知道 `git-runner` 要使用 SSH 登录项目部署的服务器，需要创建一对公私钥，将其公钥添加到 `部署服务器` 的 ssh 公钥配置中，登录时再通过私钥去做验证(参考： [Linux - 配置SSH免密登入](https://blog.csdn.net/weixin_46232508/article/details/106397322) )
+这里简单解释一下，我们知道 `git-runner` 要使用 SSH 登录项目部署的服务器，需要创建一对公私钥，将其公钥添加到 `部署服务器` 的 ssh 公钥配置中，登录时再通过私钥去做验证
+
+- 参考： [Linux - 配置SSH免密登入](https://blog.csdn.net/weixin_46232508/article/details/106397322) 
 
 因此我们在 `gitlab-runner` 安装的服务器上，输入如下命令
 
@@ -265,4 +267,8 @@ ssh-keygen -t rsa -C "niceday@163.com"
 ![1654584003746](../blog-assets/Gitlab搭建及实现CI/1654584003746.png)
 
 **至此，大功告成！**
+
+
+
+# GitLab 同步 Github
 
