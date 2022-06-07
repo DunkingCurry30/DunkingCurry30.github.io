@@ -57,7 +57,15 @@ hexo s
 
 参考 `Hexo Fluid` 官方手册：[Hexo Fluid 用户手册](https://hexo.fluid-dev.com/docs)
 
+## Hexo 部署至 Nginx
 
+在`Hexo` 项目目录下，执行以下命令打包 `Hexo` ，生成 `public` 目录
+
+```bash
+hexo g
+```
+
+将`public` 目录下的文件放至 nginx 的`html` 目录，启动 nginx 即可
 
 ## Github Pages 
 
@@ -68,7 +76,7 @@ GitHub 主页右上角加号 -> New repository ：
 
 创建仓库后，默认自动启用HTTPS，访问地址为 `https://账号名.github.io` 
 
-## 部署 Hexo 到 Github Pages
+### 部署 Hexo 到 Github Pages
 
 在 Blog 文件目录下，输入以下命令
 
@@ -91,13 +99,9 @@ deploy:
 hexo deploy
 ```
 
-## 部署 Hexo 到 Nginx
+### Github Action 实现自动化部署 Hexo
 
-在`Hexo` 项目目录下，执行以下命令打包 `Hexo` ，生成 `public` 目录
 
-```bash
-hexo g
-```
 
-将`public` 目录下的文件放至 nginx 的`html` 目录，启动 nginx 即可
+
 

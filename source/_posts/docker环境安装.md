@@ -25,7 +25,7 @@ yum-config-manager \
 
 # 更新yum软件包索引
 yum makecache fase 
-# 安装docker（这里安装docker-ce版本）
+# 安装 docker（这里安装docker-ce版本）
 yum install docker-ce docker-ce-cli containerd.io
 
 # 配置阿里云镜像加速器
