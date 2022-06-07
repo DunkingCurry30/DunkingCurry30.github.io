@@ -76,6 +76,8 @@ GitHub 主页右上角加号 -> New repository ：
 
 创建仓库后，默认自动启用HTTPS，访问地址为 `https://账号名.github.io` 
 
+
+
 ### 部署 Hexo 到 Github Pages
 
 在 Blog 文件目录下，输入以下命令
@@ -99,9 +101,88 @@ deploy:
 hexo deploy
 ```
 
+
+
 ### Github Action 实现自动化部署 Hexo
 
+> 1. 配置部署公钥
 
+利用 `ssh-keygen` 生成公私钥
 
+- Github Pages 仓库  `Settings -> Secrets -> Actions` ， 新建一个 ` HEXO_DEPLOY_PRIVATE_KEY ` 存放私钥
 
+![1654593294036](../blog-assets/基于Github个人博客搭建/1654593294036.png)
 
+- Pages 仓库  `Settings -> Deploy keys` ，新建一个 `HEXO_DEPLOY_PUB_KEY` 存放公钥  
+
+![1654593824300](../blog-assets/基于Github个人博客搭建/1654593824300.png)
+
+> 2. 编写 Action
+
+ 在 `.github/workflows` 新建 `deploy.yml` 文件，内容如下：
+
+```yaml
+name: CI
+on:
+  push:
+    branches:
+      - dev-dunkingcurry
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [14.x]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v1
+        with:
+          ref: myblog
+
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          version: ${{ matrix.node_version }}
+
+      # 缓存node_modules，避免每次跑action都要重新下载
+      - name: Cache node modules
+        uses: actions/cache@v1    
+        id: cache    
+        with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+      - name: Setup hexo
+        env:
+          ACTION_DEPLOY_KEY: ${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$ACTION_DEPLOY_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          git config --global user.email "DunkingCurry30"
+          git config --global user.name "123456789@qq.com"
+          npm install hexo-cli -g
+          npm install
+      - name: Hexo deploy
+        run: |
+          hexo clean
+          hexo g
+```
+
+> 3. push 至 Pages 仓库
+
+push 至 Pages 仓库后，在 仓库 `Action` 界面下查看自动化流水线，点击可查看具体信息
+
+![1654596296439](../blog-assets/基于Github个人博客搭建/1654596296439.png)
+
+> 4. 验证自动化部署结果
+
+流水线显示执行成功后，通过域名 `https://账号名.github.io` 可查看博客网站内容，更新成功
+
+![1654584003746](../blog-assets/基于Github个人博客搭建/1654584003746.png)
+
+**至此，大功告成！**
