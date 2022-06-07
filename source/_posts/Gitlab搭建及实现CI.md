@@ -1,4 +1,6 @@
+---
 title: 基于docker 搭建 GitLab 及 GitLab-runner 实现 CI
+---
 # GitLab私服搭建
 
 GitLab 是一个用于仓库管理系统的开源项目，使用[Git](https://baike.baidu.com/item/Git)作为代码管理工具，并在此基础上搭建起来的Web服务 
