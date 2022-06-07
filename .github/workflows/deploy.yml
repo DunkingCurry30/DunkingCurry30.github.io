@@ -12,9 +12,9 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
-          ref: myblog
+          ref: dev-dunkingcurry
 
       - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v1
@@ -47,4 +47,5 @@ jobs:
       - name: Hexo deploy
         run: |
           hexo clean
+          hexo g
           hexo d
