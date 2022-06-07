@@ -22,10 +22,11 @@ build_job:
   - build
   script: # 这个就是操作命令 或者写脚本路径
   - npm install -g cnpm --registry=https://registry.npm.taobao.org #切换至cnpm，提升速度
-  - echo `pwd` # 我只是输出下观察写路径
+  - echo `pwd` # 输出当前路径
   - cnpm install -g hexo-cli  # 安装 hexo-cli
   - cnpm install 
-  - hexo clean && hexo g # 打包生成 dist 文件夹
+  - hexo clean && hexo g # 打包生成 public 文件夹
+  - hexo d # 同步部署到 GitHub
  
 # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
 cache:
@@ -43,3 +44,4 @@ deploy_job:
       - mv public html
       - ls
       - scp -r ./html/ root@81.69.231.145:/opt/docker/nginx  # 将打包好的文件上到发布项目的服务器中的。放到nginx能访问到的文件夹下
+      - echo "gitlab-ci success."
