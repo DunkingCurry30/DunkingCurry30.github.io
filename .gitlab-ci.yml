@@ -9,7 +9,7 @@ stages:
      
 before_script:
   - echo "gitlab-ci start..."
-  - eval `ssh-agent -s`
+  - eval `ssh-agent -s` # 设置 SSH 认证信息
   - ssh-add <(echo "$SSH_KEY")
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
