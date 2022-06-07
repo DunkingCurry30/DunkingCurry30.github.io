@@ -26,7 +26,6 @@ build_job:
   - cnpm install -g hexo-cli  # 安装 hexo-cli
   - cnpm install 
   - hexo clean && hexo g # 打包生成 public 文件夹
-  - hexo d # 同步部署到 GitHub
  
 # 缓存，因为是容器执行，每次执行的时候都会重新打包，缓存起来就不需要安装一次  
 cache:
