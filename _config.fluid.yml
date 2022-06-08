@@ -955,7 +955,7 @@ about:
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/DunkingCurry30", tip: "GitHub" }
     - { class: "iconfont icon-douban-fill", link: "https://douban.com", tip: "豆瓣" }
-    - { class: "iconfont icon-wechat-fill", qrcode: "/img/favicon.png" }
+    - { class: "iconfont icon-wechat-fill", qrcode: "/img/wx-qrcode.jpg" }
 
 
 #---------------------------
