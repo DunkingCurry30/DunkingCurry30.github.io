@@ -1,5 +1,11 @@
 ---
-title: docker环境及常用镜像安装
+title: docker 环境及常用镜像安装
+tags: 
+  - docker
+  - ssh
+categories: 
+  - DevOps
+  - 环境搭建
 ---
 # docker环境安装
 

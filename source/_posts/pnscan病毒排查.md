@@ -1,5 +1,13 @@
 ---
 title: pnscan挖矿病毒排查过程记录
+tags: 
+  - docker
+  - gitlab
+  - ssh
+  - hexo
+categories: 
+  - Linux
+  - 网络安全
 ---
 
 > 记一次服务器被挖矿病毒攻击问题排查
@@ -108,4 +116,4 @@ title: pnscan挖矿病毒排查过程记录
   
 - 参考：https://www.techug.com/post/do-a-hacker-invade-a-server.html
 
-> 后记：外网环境应通过`TLS`方式开启docker远程端口访问，配置细节可站内搜索《docker环境及常用镜像安装》  
+> 后记：外网环境应通过`TLS`方式开启docker远程端口访问，配置细节可参考 [docker环境及常用镜像安装](/2022/06/06/docker环境安装/)  

@@ -1,5 +1,12 @@
 ---
 title: 基于Hexo的个人博客搭建
+tags: 
+  - gitlab
+  - git
+  - hexo
+categories: 
+  - Web前端
+  - 博客 Blog
 ---
 
 > 使用 Hexo 博客框架快速搭建个人博客，配合 Github Pages 实现博客部署及域名访问

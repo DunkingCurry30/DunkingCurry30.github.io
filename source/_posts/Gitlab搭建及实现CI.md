@@ -1,5 +1,12 @@
 ---
 title: docker 部署 gitlab gitlab-runner 实现 CI
+tags: 
+  - docker
+  - gitlab
+  - ssh
+categories: 
+  - DevOps
+  - 环境搭建
 ---
 # GitLab私服搭建
 

@@ -1,5 +1,9 @@
 ---
 title: Markdown 常见问题解决
+tags: 
+  - tools
+categories: 
+  - 常用工具技巧
 ---
 
 - 前置条件： `Typora` 编辑器
