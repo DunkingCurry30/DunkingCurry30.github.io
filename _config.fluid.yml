@@ -793,7 +793,7 @@ valine:
   appId: 4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va
   appKey: hMrzn1Le69yRYRopC8MHigH4
   path: window.location.pathname
-  placeholder:
+  placeholder: 快来一起讨论吧
   avatar: retro
   meta: ['nick', 'mail', 'link']
   requiredFields: []
