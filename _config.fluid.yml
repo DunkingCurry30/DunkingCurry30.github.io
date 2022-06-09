@@ -725,11 +725,11 @@ post:
   # 评论插件
   # Comment plugin
   comments:
-    enable: false
+    enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus
-    type: disqus
+    type: valine
 
 
 #---------------------------
@@ -790,18 +790,18 @@ gitalk:
 # Based on LeanCloud
 # See: https://valine.js.org/
 valine:
-  appId:
-  appKey:
+  appId: 4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va
+  appKey: hMrzn1Le69yRYRopC8MHigH4
   path: window.location.pathname
   placeholder:
-  avatar: 'retro'
+  avatar: retro
   meta: ['nick', 'mail', 'link']
   requiredFields: []
   pageSize: 10
   lang: 'zh-CN'
-  highlight: false
-  recordIP: false
-  serverURLs: ''
+  highlight: true
+  recordIP: true
+  serverURLs: 'https://4kul0vee.lc-cn-e1-shared.com'
   emojiCDN:
   emojiMaps:
   enableQQ: false
@@ -1081,7 +1081,7 @@ static_prefix:
 
   mermaid: https://lib.baomitu.com/mermaid/8.14.0/
 
-  valine: https://lib.baomitu.com/valine/1.4.18/
+  valine: https://unpkg.com/valine@1.4.18/dist/
 
   waline: https://lib.baomitu.com/waline/2.5.1/
 
