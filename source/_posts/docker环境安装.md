@@ -197,7 +197,7 @@ systemctl restart docker
 
 在`Portainer`中使用`TLS` 方式，上传`cert.pem` 、`key.pem` 文件
 
-![1654156409795](C:\Users\sherlock\AppData\Roaming\Typora\typora-user-images\1654156409795.png)
+![1654156409795](../blog-assets/docker环境安装/1654156409795.png)
 
 # docker安装netdata
 
