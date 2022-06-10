@@ -15,7 +15,7 @@ categories:
 
 - 服务器环境：CentOS 7.6
 
-```shell
+```bash
 # 更新yum
 yum update
 # 安装yum-utils工具
@@ -55,7 +55,7 @@ systemctl enable docker
 
 ## docker常用命令
 
-```shell
+```bash
 # 构建镜像
 docker build -t 镜像名称
 # 加载镜像tar包
@@ -82,7 +82,7 @@ exit
 
 > Portainer是一个可视化的容器镜像的图形管理工具，利用Portainer可以轻松构建，管理和维护Docker环境。 而且完全免费，基于容器化的安装方式，方便高效部署。 
 
-```shell
+```bash
 # 获取portainer-ce镜像
 docker search portainer
 docker pull portainer/portainer-ce
@@ -113,7 +113,7 @@ systemctl restart docker
 
 首先，创建一个ca文件夹存放公钥和私钥
 
-```shell
+```bash
 mkdir /usr/local/userSh
 cd /usr/local/userSh
 touch tls.sh
@@ -122,7 +122,7 @@ vi tls.sh
 
 将下列脚本内容复制
 
-```shell
+```bash
 #!/bin/bash
 #相关配置信息（除IP有用，其他基本咩有用）
 #服务器IP或者域名
@@ -180,13 +180,13 @@ echo "生成文件完成"
 
 执行脚本，在`/usr/local/ca/` 目录下生成ca证书
 
-```shell
+```bash
 sh tls.sh
 ```
 
 修改docker配置文件
 
-```shell
+```bash
 vim /usr/lib/systemd/system/docker.service
 # 找到以下行，修改为
 ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/usr/local/ca/ca.pem --tlscert=/usr/local/ca/server-cert.pem --tlskey=/usr/local/ca/server-key.pem -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock --containerd=/run/containerd/containerd.sock
@@ -203,7 +203,7 @@ systemctl restart docker
 
 >  Netdata 是一款 Linux 性能实时监测工具 ，其自身是一个高度优化的 Linux 守护进程，它为 Linux 系统，应用程序，SNMP 服务等提供实时的性能监测，并通过可视化图表信息呈现至web页面
 
-```shell
+```bash
 # 获取netdata镜像
 docker search netdata
 docker pull netdata/netdata
@@ -233,7 +233,7 @@ docker ps -a
 
 ## 方式一：通过pip3安装
 
-```shell
+```bash
 # 安装pip
 yum -y install python-pip
 # 更新pip3
@@ -248,7 +248,7 @@ docker-compose version
 
  访问https://github.com/docker/compose/releases，下载 `docker-compose-Linux-x86_64` ，下载后重命名文件为 `docker-compose` ，可通过FTP工具上传到服务器` /usr/local/bin/ ` 目录下
 
-```shell
+```bash
 # 添加可执行权限
 sudo chmod +x /usr/local/bin/docker-compose
 # 查看docker-compose版本
