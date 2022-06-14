@@ -1,5 +1,6 @@
 ---
 title: docker 部署 gitlab gitlab-runner 实现 CI
+date: 2022/6/8 20:00:00
 tags: 
   - docker
   - gitlab

@@ -1,5 +1,6 @@
 ---
 title: 基于Hexo的个人博客搭建
+date: 2022/6/7 20:00:00
 tags: 
   - gitlab
   - git
