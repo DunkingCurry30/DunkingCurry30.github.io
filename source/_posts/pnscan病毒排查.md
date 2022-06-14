@@ -63,7 +63,7 @@ categories:
 
 7. 使用`htop` 命令查看，发现挖矿病毒，继续排查
 
-   ![1654084303957](C:\Users\sherlock\AppData\Roaming\Typora\typora-user-images\1654084303957.png)
+![1654084303957](../blog-assets/pnscan病毒排查/1654084303957.png)
 
 8. 查看定时任务，并停止，发现cron脚本也被感染无法更改（心肺停止...）
 
