@@ -474,4 +474,4 @@ Vue 通过 `watch` 自定义侦听器用于对数据进行监控，当监视的�
 
 图示
 
-![https://v3.cn.vuejs.org/images/lifecycle.svg](https://v3.cn.vuejs.org/images/lifecycle.svg)
+![https://v3.cn.vuejs.org/images/lifecycle.svg](../blog-assets/Vue笔记/lifecycle.svg)
