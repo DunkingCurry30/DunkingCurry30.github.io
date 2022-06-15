@@ -464,7 +464,294 @@ Vue 通过 `watch` 自定义侦听器用于对数据进行监控，当监视的�
 
 
 
-# 四、生命周期
+# 四、组件基础
+
+组件（Component）是 Vue.js 最强大的功能之一，组件可以扩展HTML元素，封装可重用代码，在较高层面上，组件是自定义元素，Vue.js 的编译器为它添加特殊功能。
+
+## 组件注册
+
+### 组件名
+
+尽管当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时两种命名法都可以使用。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的。但实际上，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case （短横线分割命名）是有效的。 
+
+### 全局注册
+
+使用 `app.component` 来全局注册组件，也就是说这些组件在注册之后可以用在任何新创建的组件实例模板中；在各子组件中也是如此，子组件内部也可以相互使用
+
+```html
+<body>
+    <div id="mycomponent">
+        <my-component-a></my-component-a>
+    </div>
+</body>
+<script>
+	//全局注册
+    const mycomponent = Vue.createApp({})
+
+    mycomponent.component('my-component-a',{
+        template: "<div>My Component A</div>"
+    })
+
+    mycomponent.mount("#mycomponent")
+</script>
+```
+
+### 局部注册
+
+全局注册往往是不够理想的。比如，如果你使用一个像 webpack 这样的构建系统，全局注册所有的组件意味着即便你已经不再使用其中一个组件了，它仍然会被包含在最终的构建结果中。这造成了用户下载的 JavaScript 的无谓的增加。 
+
+ 在这些情况下，你可以通过一个普通的 JavaScript 对象来定义组件 ，在 `components` 选项中定义想要使用的组件
+
+```html
+<body>
+    <div id="mycomponent">
+        <local-component-a></local-component-a>
+    </div>
+</body>
+<script>
+	//局部注册
+    const ComponentA = {
+        template: "<div>My Component A</div>"
+    }
+    
+    const mycomponent1 = Vue.createApp({
+        components: {
+            'local-component-a': ComponentA
+        }
+    }).mount("#mycomponent")
+</script>
+```
+
+注意 **局部注册的组件在其子组件中不可用** ， 如果你希望 `ComponentA` 在 `ComponentB` 中可用，则需要这样写：
+
+```javascript
+const ComponentA = {
+  /* ... */
+}
+
+const ComponentB = {
+  components: {
+    'component-a': ComponentA
+  }
+  // ...
+}
+```
+
+
+
+##  编译作用域
+
+父组件模板的内容在父组件作用域内编译；子组件模板的内容在子组件作用域内编译。一个常见的错误是试图在父组件模板内将一个指令绑定到子组件的属性 / 方法上
+
+```html
+<child-component v-show="childProperty"></child-component>
+```
+
+假定 `childProperty` 是子组件的属性，那上例会失效，父组件模板不应该知道子组件的状态，如果要绑定子组件内的指令应当这么做
+
+```javascript
+const SimpleCounter = {
+    template: "<div v-show='childProperty'>1</div>",
+    data(){
+        return{
+            childProperty: true
+        }
+    }
+}
+```
+
+
+
+## 构成组件
+
+组件意味着协同工作，通常父子组件会是这样的关系：
+
+组件 A 在它的模板中使用了组件 B 。它们之间必然要相互通信
+
+- 父组件要给子组件传递数据，这个过程使用 `props` 
+- 子组件需要将它内部发生的事情告诉父组件，这个过程使用 `events` 
+
+
+
+### Props
+
+父组件可以使用 `props` 把数据传给子组件
+
+```html
+<body>
+    <div id="mycomponent">
+        <child message="parentmsg"></child>
+    </div>
+</body>
+<script>
+	const child = {
+        props: ['message'],
+        template: '<div>{{ message }}</div>'
+    }
+
+    const mycomponent1 = Vue.createApp({
+        components: {
+            'child': child
+        }
+    }).mount("#mycomponent")
+</script>
+```
+
+
+
+也可以使用 `v-bind` 动态绑定 `props` 的值到父组件的数据中。每当父组件的数据变化是，该变化也会传导给子组件
+
+```html
+<body>
+    <div id="mycomponent">
+        <child :message="parentmsg"></child>
+    </div>
+</body>
+<script>
+	const child = {
+        props: ['message'],
+        template: '<div>{{ message }}</div>'
+    }
+
+    const mycomponent1 = Vue.createApp({
+        components: {
+            'child': child
+        },
+        data(){
+            return {
+                parentmsg: 'parent messsage'
+            }
+        }
+    }).mount("#mycomponent")
+</script>
+```
+
+
+
+### Events
+
+子组件通过`$emit` 方法自定义触发一个事件来通知父组件完成相关操作，父组件就可以像处理原生 DOM 事件一样通过 `v-on` 或 `@` 监听子组件触发的事件
+
+```html
+<body>
+    <div id="mycomponent">
+        <div>
+            <child 
+                :message="parentmsg" 
+                @enlarge-text="msgFontsize += 0.1"  
+                :style="{ fontSize: msgFontsize + 'em'}">
+            </child>
+        </div>
+    </div>
+</body>
+<script>
+	const child = {
+        props: ['message'],
+        emits: ['enlargeText'],
+        template: `
+                <div>
+                    <h4>{{ message }}</h4>
+                    <button @click="$emit('enlargeText')">
+                        Enlarge text
+                    </button>
+                </div>
+                `
+    }
+
+    const mycomponent1 = Vue.createApp({
+        components: {
+            'child': child
+        },
+        data(){
+            return {
+                parentmsg: 'parent messsage',
+                msgFontsize: 1
+            }
+        }
+    }).mount("#mycomponent")
+</script>
+```
+
+
+
+#### 使用事件抛出一个值
+
+有的时候用一个事件来抛出一个特定的值是非常有用的，这时可以使用 `$emit` 的第二个参数来提供这个值
+
+```html
+<button @click="$emit('enlargeText',0.1)">
+	Enlarge text
+</button>
+```
+
+然后在父组件监听时，可以通过 `$event` 访问到抛出的这个值
+
+```html
+<child @enlarge-text="onEnlargeText"></child>
+```
+
+或者，这个事件处理函数是一个方法
+
+```html
+<child @enlarge-text="onEnlargeText"></child>
+```
+
+那么这个值会作为第一个参数传入这个方法
+
+```javascript
+methods: {
+    onEnlargeText(enlargeAmount){
+        msgFontsize += enlargeAmount
+    }
+}
+```
+
+
+
+## 动态组件
+
+有时候，在不同组件之间进行动态切换是非常有用的（例如多标签的界面），这时可通过 Vue 的 `component` 元素加一个特殊的 `is` attribute 来实现
+
+```html
+<component :is="currentComponent"></component>
+```
+
+
+
+## 通过插槽分发内容
+
+使用 `<slot>` 作为我们想要插入内容的占位符，在其标签中的任何内容都会被视为备用内容，只有当父组件要插入的内容为空时显示
+
+```html
+<body>
+    <div id="mycomponent">
+        <local-component-a>There is a tiger.</local-component-a>
+    </div>
+</body>
+<script>
+	//slot
+    const ComponentA = {
+        template: `
+					<div>
+                    <strong>Look Up!</strong>
+                    <slot></slot>
+                    </div>
+				  `
+    }
+    
+    const mycomponent1 = Vue.createApp({
+        components: {
+            'local-component-a': ComponentA
+        }
+    }).mount("#mycomponent")
+</script>
+```
+
+
+
+
+
+# 五、生命周期
 
 ## 图示
 
