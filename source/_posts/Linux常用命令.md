@@ -1,5 +1,5 @@
 ---
-title: Linux 基础 （一）
+title: Linux 基础
 date: 2022/6/16 20:00:00
 tags: 
   - shell
