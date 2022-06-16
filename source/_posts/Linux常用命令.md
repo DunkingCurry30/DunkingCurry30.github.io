@@ -281,38 +281,31 @@ ps -ef | grep tomcat        查找tomcat进程信息
 
 
 
-## 4. 系统日志位置
+## 4. 打印输出
+
+
+
+#### echo 基本操作
 
 ```bash
-cat /etc/redhat-release		查看操作系统版本
-/var/log/message			系统启动后的信息和错误日志，是Red Hat Linux中最常用的日志之一
-/var/log/message			系统启动后的信息和错误日志，是Red Hat Linux中最常用的日志之一 
-/var/log/secure				与安全相关的日志信息 
-/var/log/maillog			与邮件相关的日志信息 
-/var/log/cron				与定时任务相关的日志信息 
-/var/log/spooler			与UUCP和news设备相关的日志信息 
-/var/log/boot.log			守护进程启动和停止相关的日志消息 
+echo "helloworld"           打印 helloworld
+echo `date`                 打印当前日期, 注意该命令中的不是单引号, 而是[~]键下的符号
+echo -n "hello\nworld"      表示输出不换行，该命令会直接打印 hello\nworld
+echo -e "hello\nworld"      对转义字符进行处理，该命令会换行打印 world
+```
+
+#### echo 重定向
+
+```bash
+echo "123" > a.txt          将 “123” 覆盖到 a.txt 文件中
+echo "123" >> a.txt         将 “123” 追加到文件后
 ```
 
 
 
-## 5. 创建与删除软连接
-
-#### 创建软连接
-
-```bash
-ln -s /usr/local/app /data  创建 /usr/local/app 目录与 /data 目录的软连接
-```
-
-#### 删除软连接
-
-```bash
-rm -rf /data                删除软连接, 最后不能加/, 加上表示删除文件夹
-```
+## 5. 压缩和解压缩
 
 
-
-## 6. 压缩和解压缩
 
 #### tar 命令
 
@@ -342,15 +335,118 @@ tar -zxvf start.tar.gz -C usr/local 	//（C为大写，中间无空格）
 
 
 
-## 7. Linux 下文件的详细信息
+## 6. 文件赋权指令 
+
+
+
+#### 文件权限
+
+使用 `ll` 命令查看文件权限信息
 
 ```bash
- R:Read  w:write  x: execute执行
+[root@VM-8-8-centos bbb]# ll
 -rw-r--r-- 1 root root  34942 Jan 19  2018 bootstrap.jar
-首位代表文件类型：目录为 d, 文件为 - 
-接下来：
-- 前三位代表当前用户对文件权限：可以读/可以写/不能执行
-- 中间三位代表当前组的其他用户对当前文件的操作权限：可以读/不能写/不能执行
-- 后三位其他用户对当前文件权限：可以读/不能写/不能执行
+```
+
+这里解释以下前10位 `-rw-r--r--` ：
+
+- 首位代表文件类型：目录为 `d`, 文件为 `-` 
+
+后面的三个三元组即为该文件权限：
+
+- 前三位：当前用户（user）的文件权限
+- 中三位：当前组（group）的其他用户的文件权限
+- 后三位：其他用户（other）的文件权限
+
+> `r` ：文件可被读
+>
+> `w` ：文件可被写
+>
+> `e` ：文件可被执行（如果它是可执行文件的话）
+>
+> `-` ：表示无权限
+>
+> 其中，以上符号也可以用数字代替
+>
+> `r` -------- `4`
+>
+> `w` -------- `2` 
+>
+> `x` -------- `1`
+>
+> `-` -------- `0` 
+
+当搞清楚上面的符号表示的含义之后，以下常见权限就很容易明白了：
+
+`-rw-------` (***600***)  只有所有者才有读和写的权限
+
+`-rw-r--r--` (***644***)  只有所有者才有读和写的权限，组群和其他人只有读的权限
+
+`-rwx------` (***700***)  只有所有者才有读，写，执行的权限
+
+`-rwxr-xr-x` (***755***)  只有所有者才有读，写，执行的权限，组群和其他人只有读和执行的权限
+
+`-rwx--x--x` (***711***)  只有所有者才有读，写，执行的权限，组群和其他人只有执行的权限
+
+`-rw-rw-rw-` (***666***)  每个人都有读写的权限
+
+`-rwxrwxrwx` (***777***)  每个人都有读写和执行的权限
+
+
+
+#### chmod 命令
+
+操作选项：
+
+- `+` ：添加权限
+- `-` ：删除权限
+- `=` ：设置为唯一权限
+
+操作对象：
+
+- `u` ：所有者 user
+- `g` ：所有者所在组 group
+- `o` ：除 `u` 和 `g` 以外的其他人 other
+- `a` ：所有人 all
+
+```bash
+chmod g+w test.txt       给 group 用户增加写权限
+chmod go-x a.sh          给 group 和 other 用户删除可执行权限
+chmod 777 test.txt       放开该文件所有权限
+```
+
+如果想要一次性修改某个目录下所有文件的权限，需使用 `-R` 做递归处理
+
+```bash
+chmod -R 777 /home/user  放开/home/user 目录下所有文件的权限
+```
+
+## 7. 系统日志位置
+
+```bash
+cat /etc/redhat-release		查看操作系统版本
+/var/log/message			系统启动后的信息和错误日志，是Red Hat Linux中最常用的日志之一
+/var/log/message			系统启动后的信息和错误日志，是Red Hat Linux中最常用的日志之一 
+/var/log/secure				与安全相关的日志信息 
+/var/log/maillog			与邮件相关的日志信息 
+/var/log/cron				与定时任务相关的日志信息 
+/var/log/spooler			与UUCP和news设备相关的日志信息 
+/var/log/boot.log			守护进程启动和停止相关的日志消息 
+```
+
+
+
+## 8. 创建与删除软连接
+
+#### 创建软连接
+
+```bash
+ln -s /usr/local/app /data  创建 /usr/local/app 目录与 /data 目录的软连接
+```
+
+#### 删除软连接
+
+```bash
+rm -rf /data                删除软连接, 最后不能加/, 加上表示删除文件夹
 ```
 
