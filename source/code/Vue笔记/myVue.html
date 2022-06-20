@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+    <title>Document</title>
+    <script src="./js/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        {{ name }}
+    </div>
+
+    <div id="vhtml">
+        <div v-html="url"></div>
+    </div>
+
+    <div id="vbind">
+        <h3 :class="{active : isActive, line : isLine}">
+            {{ name }}
+        </h3>
+    </div>
+
+    <div id="von">
+        <p>{{ message }}</p>
+        <button @click.once="reversemsg">反转字符串</button>
+        <input v-model="message" type="text" v-on:keyup.enter="keyclick">
+    </div>
+
+    <div id="vif">
+        <h3 v-if="score >= 90">v-if 90</h3>
+        <h3 v-else-if="score >= 80">v-if 80</h3>
+        <h3 v-else>v-if else</h3>
+    </div>
+
+    <div id="vfor">
+        <table style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th v-for="item in items">{{ item }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in info" :key="index">
+                    <th style="border: 1px solid #000;">{{ item.name }}</th>
+                    <td style="border: 1px solid #000;">{{ item.age }}</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="computed">
+        <h3>
+            {{ fullname }}
+        </h3>
+    </div>
+
+    <div id="watch">
+        <p>
+            Do an add calculation:
+            <input v-model="expr" />
+        </p>
+        <p>{{ answer }}</p>
+    </div>
+
+    <div id="mycomponent">
+        <local-component-a>There is a tiger.</local-component-a>
+        <simple-counter></simple-counter>
+        <div>
+            <child :message="parentmsg" @enlarge-text="msgFontsize += 0.1" :style="{ fontSize: msgFontsize + 'em'}">
+            </child>
+        </div>
+
+    </div>
+</body>
+<script>
+    //mustache语法
+    const app = Vue.createApp({
+        data() {
+            return {
+                name: "hello world"
+            }
+        }
+    }).mount('#app')
+
+    //v-html 语法
+    const vhtml = Vue.createApp({
+        data() {
+            return {
+                url: "<p>v-html test</p>"
+            }
+        }
+    }).mount('#vhtml')
+
+    //v-bind 语法
+    const vbind = Vue.createApp({
+        data() {
+            return {
+                name: "v-bind test",
+                isActive: true,
+                isLine: false
+            }
+        }
+    }).mount('#vbind')
+
+    //v-on 语法
+    const von = Vue.createApp({
+        data() {
+            return {
+                message: "12345678"
+            }
+        },
+        methods: {
+            reversemsg() {
+                this.message = this.message.split('').reverse().join('')
+            },
+            keyclick() {
+                alert(this.message)
+            }
+        }
+    }).mount('#von')
+
+    //v-if 语法
+    const vif = Vue.createApp({
+        data() {
+            return {
+                score: 86
+            }
+        }
+    }).mount("#vif")
+
+    //v-for 语法
+    const vfor = Vue.createApp({
+        data() {
+            return {
+                items: ['name', 'age'],
+                info: [{
+                    name: "Judy",
+                    age: 31
+                }, {
+                    name: "Tom",
+                    age: 24
+                }]
+            }
+        }
+    }).mount("#vfor")
+
+    //computed 语法
+    const computed = Vue.createApp({
+        data() {
+            return {
+                firstname: "Stephen",
+                lastname: "Curry",
+                wholename: "123"
+            }
+        },
+        computed: {
+            fullname: {
+                get() {
+                    return "computed-test: " + this.firstname + " " + this.lastname
+                },
+                set(fullname) {
+                    const names = fullname.split(' ')
+                    this.firstname = name[names.length - 2]
+                    this.lastname = name[names.length - 1]
+                }
+            }
+        }
+    }).mount("#computed")
+
+    //watch 语法
+    const watchExampleVM = Vue.createApp({
+        data() {
+            return {
+                expr: '1+1?',
+                answer: '2'
+            }
+        },
+        watch: {
+            // 每当 question 发生变化时，该函数将会执行
+            expr(newValue, oldValue) {
+                if (newValue.indexOf('?') > -1) {
+                    this.getAnswer()
+                }
+            }
+        },
+        methods: {
+            getAnswer() {
+                exprs = this.expr.split("?")[0].split("+")
+                this.answer = eval(exprs[0]) + eval(exprs[1])
+            }
+        }
+    }).mount('#watch')
+
+    //组件
+    const ComponentA = {
+        template: `<div>
+                    <strong>Look Up!</strong>
+                    <slot></slot>
+                    </div>`
+    }
+
+    const SimpleCounter = {
+        template: "<div v-show='childProperty'>1</div>",
+        data() {
+            return {
+                childProperty: true
+            }
+        }
+    }
+
+    const child = {
+        props: ['message'],
+        emits: ['enlargeText'],
+        template: `
+                <div>
+                    <h4>{{ message }}</h4>
+                    <button @click="$emit('enlargeText')">
+                        Enlarge text
+                    </button>
+                </div>
+                `
+    }
+
+    const mycomponent1 = Vue.createApp({
+
+        components: {
+            'local-component-a': ComponentA,
+            'simple-counter': SimpleCounter,
+            'child': child
+        },
+        data() {
+            return {
+                parentmsg: 'parent messsage',
+                msgFontsize: 1
+            }
+        }
+    }).mount("#mycomponent")
+</script>
+</script>
+<style>
+    .active {
+        color: rebeccapurple;
+    }
+</style>

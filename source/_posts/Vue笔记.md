@@ -749,6 +749,8 @@ methods: {
 
 
 
+>  参考：[Vue示例](./../code/Vue笔记/myVue.html)
+
 
 
 # 五、生命周期
