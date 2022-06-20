@@ -63,11 +63,35 @@ HTML在客户端被浏览器组织成一个树形结构，就是 DOM(Document Ob
 
 将元素所占的空间类比成生活中的盒子（BOX），从外到内依次是 `margin` 、`border`和`padding`
 
+![1655703787374](../blog-assets/HTML+CSS/1655703787374.png)
 
 
 
+## [HTML]()基本结构
 
 
+
+### 文档基本结构
+
+```html
+<html>
+    <head>
+        元数据和标题
+    </head>
+    <body>
+        页面显示内容
+    </body>
+</html>
+```
+
+
+
+### 元素、属性和值
+
+```html
+<label for="email">Email Address</label>
+<img src="blue.jpg" width="200px" height="200px"
+```
 
 
 

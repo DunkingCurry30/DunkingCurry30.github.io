@@ -749,7 +749,7 @@ methods: {
 
 
 
->  参考：[Vue示例](/../code/Vue笔记/myVue.html)
+>  参考：[Vue示例](https://github.com/DunkingCurry30/DunkingCurry30.github.io/blob/90f7ff1425262c84d2ee4043b2b29fb7dcd5e27c/source/code/Vue%E7%AC%94%E8%AE%B0/myVue.html)
 
 
 
