@@ -749,7 +749,7 @@ methods: {
 
 
 
->  参考：[Vue示例](./../code/Vue笔记/myVue.html)
+>  参考：[Vue示例](../code/Vue笔记/myVue.html)
 
 
 
