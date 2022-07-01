@@ -10,6 +10,5 @@ categories:
 ---
 # GitLab内存占用过高解决方案
 
-GitLab 是一个用于仓库管理系统的开源项目，使用[Git](https://baike.baidu.com/item/Git)作为代码管理工具，并在此基础上搭建起来的Web服务 
+近来发现，每当推送代码，gitlab服务器很大概率会卡死，查看服务器运行情况，发现内存占用在90%以上
 
-> 参考官方Doc：  [GitLab Docker images | GitLab](https://docs.gitlab.com/ee/install/docker.html) 
