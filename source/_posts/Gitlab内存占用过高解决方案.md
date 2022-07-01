@@ -1,6 +1,6 @@
 ---
 title: GitLab内存占用过高解决方案
-date: 2022/6/8 20:00:00
+date: 2022/7/2 20:00:00
 tags: 
   - docker
   - gitlab
@@ -14,6 +14,8 @@ categories:
 
 # 一、问题发现与排查
 
+> 前提：服务器CPU内存信息为2C4G
+
 
 
 近来发现，每当推送代码，gitlab服务器很大概率会卡死；`htop` 命令查看服务器运行情况，发现内存占用在80%以上，使用以下命令查询占用内存最多的十个进程
@@ -23,8 +25,6 @@ ps aux|head -1;ps aux|grep -v PID|sort -rn -k +4|head
 ```
 
 果然，基本吃内存大户都为 gitlab 的进程，主要需要解决`worker` 和 `sidekiq` 高占用
-
-
 
 ![1656664601696](../blog-assets/Gitlab内存占用过高解决方案/1656664601696.png)
 
@@ -73,7 +73,7 @@ vim /etc/gitlab/gitlab.rb
 ## 1. 减少 workder 进程数
 
 ```bash
-#服务器为2核, 这里没有采用官方推荐配置，经测试3个进程占用也偏高，2个进程足以满足需求
+#综合考虑服务器配置，经测试2个进程占用也偏高，采用1个进程足矣
 unicorn['worker_processes'] = 2
 ```
 
@@ -109,13 +109,11 @@ postgresql['shared_buffers'] = "256MB"
 root@111c370ad:/# gitlab-ctl reconfigure
 ```
 
-
-
 ## 6. 效果验证
 
 重启，使用命令查看内存占用，已降至50%左右
 
-![1656669279872](../blog-assets/Gitlab内存占用过高解决方案/1656669279872.png)
+![1656671499371](../blog-assets/Gitlab内存占用过高解决方案/1656671499371.png)
 
 进行一些提交推送操作，再观察内存占用情况
 
