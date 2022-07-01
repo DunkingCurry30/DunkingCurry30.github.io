@@ -122,3 +122,5 @@ root@111c370ad:/# gitlab-ctl reconfigure
 
 
 至此，问题暂时解决，因为gitlab存在内存泄漏问题，后续待一段时间的提交推送后再观察内存情况。
+
+> 参考： [解决GitLab内存消耗大的问题](https://ouyangpeng.blog.csdn.net/article/details/84066417?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2~default~CTRLIST~default-1-84066417-blog-122859181.pc_relevant_multi_platform_whitelistv1&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2~default~CTRLIST~default-1-84066417-blog-122859181.pc_relevant_multi_platform_whitelistv1&utm_relevant_index=1) 
