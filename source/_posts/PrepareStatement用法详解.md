@@ -1,10 +1,12 @@
 ---
 title: PrepareStatement用法
-date: 2022/6/2 20:00:00
+date: 2022/7/1 20:00:00
 tags: 
   - java
+  - mysql
 categories: 
   - Java后端
+  - 数据库
 ---
 
 # PrepareStatement 基本用法
