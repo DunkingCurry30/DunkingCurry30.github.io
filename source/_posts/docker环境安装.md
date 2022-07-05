@@ -361,7 +361,7 @@ vim docker-compose.yml
 
 内容如下
 
-```yml
+```yaml
 version: '3'
 services:
     mysql:
