@@ -153,14 +153,14 @@ public class PrepareStatementUtils {
             pstmt1.setInt(3,35);
             pstmt1.setString(4,"男");
             //加入批次
-            pstmt.addBatch();
+            pstmt1.addBatch();
 
             //第二批
             pstmt1.setString(1,"002");
             pstmt1.setString(2,"小高");
             pstmt1.setInt(3,24);
             pstmt1.setString(4,"女");
-            pstmt.addBatch();
+            pstmt1.addBatch();
 
             //统一执行
             pstmt.executeBatch();
