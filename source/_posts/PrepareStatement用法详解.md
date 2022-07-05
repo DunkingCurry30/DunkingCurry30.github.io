@@ -163,7 +163,7 @@ public class PrepareStatementUtils {
             pstmt1.addBatch();
 
             //统一执行
-            pstmt.executeBatch();
+            pstmt1.executeBatch();
 
         } catch (ClassNotFoundException | SQLException e) {
             LOGGER.error(e.getMessage());
