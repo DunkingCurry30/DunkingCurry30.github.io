@@ -261,7 +261,7 @@ docker-compose verison
 创建`nginx` 目录，在目录下编辑 `docker-compose.yml` 文件
 
 ```bash
-mkdir ./nginx && cd ./nginx
+mkdir -p /opt/docker/nginx && cd /opt/docker/nginx
 vim docker-compose.yml
 ```
 
@@ -344,9 +344,55 @@ http {
     |`-- index.html
 ```
 
-执行命令启动Nginx容器，通过 `ip:80` 访问是否启动成功你
+执行命令启动Nginx容器，通过 `ip:80` 访问是否启动成功
 
 ```bash
 docker-compose up -d nginx
+```
+
+# docker-compose 安装 MySQL
+
+创建 `MySQL` 目录，在目录下编辑 `docker-compose.yml` 文件
+
+```bash
+mkdir -p /opt/docker/mysql && cd /opt/docker/mysql
+vim docker-compose.yml
+```
+
+内容如下
+
+```yml
+version: '3'
+services:
+    mysql:
+        image: mysql  #mysql镜像，可指定标签
+        container_name: mysql-db  #容器名
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci #设置utf8字符集
+        restart: always
+        environment:
+        	MYSQL_ROOT_PASSWORD: root #root管理员用户密码
+        ports:
+        	- '3306:3306'  #host物理直接映射端口为6606
+        volumes:
+        	- ./data/db:/var/lib/mysql  #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
+        	- ./data/conf:/etc/mysql/conf.d  #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf 
+```
+
+执行命令启动 `MySQL` 容器，查看是否启动成功
+
+```bash
+docker-compose up -d mysql
+# 进入容器
+docker exec -it mysql-db bash
+# 登录mysql
+mysql -uroot -p你的密码
+# 切换数据库
+use mysql
+# 授予用户所有远程访问权限
+grant all privileges on *.* to 'root'@'%';
+# 修改用户加密方式为 mysql_native_password
+alter user 'root'@'%' identified with mysql_native_password by '你的密码';
+# 刷新生效，可使用db客户端远程连接数据库（若未及时生效，可重启容器）
+flush privileges;
 ```
 
