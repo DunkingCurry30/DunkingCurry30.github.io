@@ -127,6 +127,7 @@ print(s -> System.out.println(s))
 2. 必须有**上下文环境**，才能推导出Lambda对应的接口
 
 - 根据局部变量的赋值得知Lambda对应的接口：
+
 ```java
 Runnable r =() ->System.out.println(“Lambda表达式”);
 ```
