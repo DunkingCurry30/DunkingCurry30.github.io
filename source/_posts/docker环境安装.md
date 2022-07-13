@@ -69,6 +69,10 @@ docker save hello-world:latest -o /home/docker/images/hello-world.tar
 docker run -d --name 容器名称 -p 8080:80 镜像名称
 docker start 镜像名称
 docker stop 镜像名称
+# 查看容器中的进程
+docker top 镜像名称
+# 查看容器元数据
+docker inspect 镜像名称
 # 删除容器
 docker rm 镜像名称
 # 进入容器
