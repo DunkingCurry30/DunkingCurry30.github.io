@@ -56,6 +56,8 @@ systemctl enable docker
 
 ## docker常用命令
 
+![img](https://img-blog.csdnimg.cn/img_convert/06a539a30efc11ba47aa2767e15ce912.png)
+
 ```bash
 # 构建镜像
 docker build -t 镜像名称
@@ -73,6 +75,14 @@ docker stop 镜像名称
 docker top 镜像名称
 # 查看容器元数据
 docker inspect 镜像名称
+# 从容器内拷贝文件到主机
+docker cp 容器id:容器内路径 目的主机路径
+# 查看容器日志
+docker logs [可选参数] 容器ID
+      --details        显示提供给日志的其他详细信息
+  -f, --follow         跟踪日志输出
+  -n, --tail string    指定要显示的日志条数 (默认为全部)
+  -t, --timestamps     显示时间戳
 # 删除容器
 docker rm 镜像名称
 # 进入容器
