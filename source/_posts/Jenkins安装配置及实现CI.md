@@ -1,11 +1,12 @@
 ---
-title: Markdown 常见问题解决
-date: 2022/6/2 20:00:00
+title: Jenkins安装配置
+date: 2022/7/4 20:00:00
 tags: 
   - jenkins
   - docker
 categories: 
   - DevOps
+  - 环境搭建
 ---
 
 # Jenkins安装配置
