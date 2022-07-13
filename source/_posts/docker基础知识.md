@@ -339,3 +339,20 @@ docker run -d -P --name nginx02 -v specific-nginx:/etc/nginx:rw nginx
 ## 3. 初始 Dockerfile
 
 
+
+ `Dockerfile` 就是用来构建 docker 镜像的构建文件，就是一段命令脚本，通过这个脚本可以生成一个镜像 ， 镜像是一层一层的，脚本中就是一个个命令，每个命令对应一层：
+
+```dockerfile
+# 创建一个dockerfile文件
+
+FROM centos
+
+VOLUME ["volume01","volume02"]
+
+CMD echo "----end----"
+
+CMD /bin/bash
+```
+
+
+
