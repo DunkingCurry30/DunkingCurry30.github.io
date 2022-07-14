@@ -336,11 +336,9 @@ docker run -d -P --name nginx02 -v specific-nginx:/etc/nginx:rw nginx
 
 
 
-## 3. 初始 Dockerfile
+## 3. 初识 Dockerfile
 
-
-
- `Dockerfile` 就是用来构建 docker 镜像的构建文件，就是一段命令脚本，通过这个脚本可以生成一个镜像 ， 镜像是一层一层的，脚本中就是一个个命令，每个命令对应一层：
+`Dockerfile` 就是用来构建 docker 镜像的构建文件，就是一段命令脚本，通过这个脚本可以生成一个镜像 ， 镜像是一层一层的，脚本中就是一个个命令，每个命令对应一层：
 
 ```dockerfile
 # 创建一个dockerfile文件
@@ -354,5 +352,153 @@ CMD echo "----end----"
 CMD /bin/bash
 ```
 
+在`Dockerfile` 文件目录下使用以下命令构建自定义的镜像 `mine/centos:1.0`
 
+```bash
+docker build -f ./dockerfile -t mine/centos:1.0
+```
+
+
+
+## 4. 数据卷容器
+
+使用参数`--volumes-from` 来实现多个容器之间的数据同步，这里实现 `centos2` 对 `centos1` 的同步：
+
+```bash
+docker run -it --name centos1 mine/centos:1.0
+docker run -it --name centos2 --volumes-from centos1 mine/centos:1.0
+```
+
+ ![image-20210129141417064](https://img-blog.csdnimg.cn/img_convert/5a3b513892633d7b730cef9a2dfe282f.png) 
+
+
+
+我们可以删除`docker01`，但数据并不会丢失；只要有一个容器再用，就不会丢失，因为数据卷是采用双向拷贝的技术，即使删除了一个容器，但数据已经拷贝到了其他容器中；
+
+ ![image-20210129181811436](../blog-assets/docker基础知识/b9564a015b35bb05629224617e277454.png) 
+
+**总结**：
+
+- 容器之间配置信息的传递，数据卷容器的生命周期一直持续到没有容器使用为止
+- 如果数据同步到了本地，本地的数据是不会删除的
+
+
+
+# 七、DockerFile
+
+
+
+## 1. DockerFile 概述
+
+通常我们使用 `dockerfile` 来构建 `docker` 镜像
+
+ ![image-20210129213822710](../blog-assets/docker基础知识/7f9531e9e45f22b59d56756172257a8d.png) 
+
+可以看出，镜像的构建步骤：
+
+1. 编写一个`dockerfile`文件；
+2. `docker build` 构建成一个镜像；
+3. `docker run` 运行镜像；
+4. `docker push` 发布镜像至镜像仓库。
+
+
+
+## 2. DockerFile 的构建过程
+
+`dockerfile` 编写规则：
+
+1. 每个保留关键字（指令）都必须是大写字母；
+2. 执行顺序从上往下顺序执行；
+3. `#`代表注释；
+4. 每条指令都会创建并提交一个新的镜像层。
+
+ ![image-20210129213927281](../blog-assets/docker基础知识/d9615e20ea252dcadb7941875bc16d79.png) 
+
+## 3. DockerFile 常用指令
+
+```dockerfile
+FROM			# 基础镜像,从此开始构建
+MAINTAINER		# 镜像作者,通常为姓名+邮箱
+RUN				# 镜像构建时需要执行的命令
+ADD				# 在镜像中需要添加的文件(比如基础镜像centos中要添加tomcat)
+WORKDIR			# 镜像的工作目录
+VOLUME			# 容器数据卷,挂载主机的目录
+EXPOSE			# 对外的暴露端口
+CMD				# 指定容器启动时要运行的命令(只有最后一个生效,可被替代)
+ENTRYPOINT		# 指定容器启动时要运行的命令(可以追加命令)
+ONBUILD			# 当构建一个被继承DockerFile时就会运行ONBUILD指令	
+COPY			# 类似ADD,将文件拷贝到镜像中
+ENV				# 构建时的环境变量
+```
+
+
+
+## 4. 实例：构建自己的 Tomcat 镜像
+
+>  tomcat下载地址：https://tomcat.apache.org/download-90.cgi 
+>
+>  jdk下载地址：https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html 
+
+**构建步骤**：
+
+1. `Tomcat`运行需要依赖于`jdk`，因此需要同时准备`Tomcat` 和 `jdk`的压缩包 ；
+
+2. 将两个压缩包通过`ftp`拷贝到服务器的`/home/tomcat`目录下 ；
+
+3. 在上述目录下编写 `dockerfile` 文件，推荐命名为 `Dockerfile` ， 这样就不需要通过`-f`指定，`build` 时会自动寻找这个文件；
+
+```dockerfile
+FROM centos
+MAINTAINER zsr<1412578784@qq.com>
+
+COPY readme.txt /usr/local/readme.txt
+
+ADD jdk-8u281-linux-x64.tar.gz /usr/local/
+ADD apache-tomcat-9.0.41.tar.gz /usr/local/
+
+RUN yum -y install vim
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+ENV JAVA_HOME /usr/local/jdk
+ENV CALSSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV CATALINA_HOME /usr/local/apache-tomcat-9.0.41
+ENV CATALINA_BASE /usr/local/apache-tomcat-9.0.41
+ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin
+
+EXPOSE 8080
+
+CMD /usr/local/apache-tomcat-9.0.41/bin/startup.sh && tail -F /url/local/apache-tomcat-9.0.41/bin/logs/catalina.out
+```
+
+4. 构建镜像，在`/home/tomcat` 目录下执行以下命令（注意结尾的点号`.` 是指镜像构建时打包上传到Docker引擎中的文件的目录,不是本机目录）；  
+
+```bash
+docker build -t mytomcat .
+```
+
+5. 查看镜像并启动容器；
+
+```bash
+# 查看构建的镜像
+docker images
+# 启动容器
+docker run -d -P 47.95.238.165:8088:8080 --name my-tomcat 
+-v /home/tomcat/test:/usr/local/apache-tomcat-9.0.41/webapps/test 
+-v /home/tomcat/logs:/usr/local/apache-tomcat-9.0.41/logs 
+mytomcat
+```
+
+6. 测试验证，使用 `公网IP:8080` 可以访问。
+
+ ![1657804782062](../blog-assets/docker基础知识/1657804782062.png) 
+
+
+
+# 八、Docker 网络
+
+
+
+## 1. Docker 网络原理
 
