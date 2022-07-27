@@ -352,10 +352,10 @@ CMD echo "----end----"
 CMD /bin/bash
 ```
 
-在`Dockerfile` 文件目录下使用以下命令构建自定义的镜像 `mine/centos:1.0`
+在`Dockerfile` 文件目录下使用以下命令构建自定义的镜像 `mycentos:1.0`
 
 ```bash
-docker build -f ./dockerfile -t mine/centos:1.0
+docker build -f ./dockerfile -t mycentos:1.0 .
 ```
 
 
@@ -365,8 +365,8 @@ docker build -f ./dockerfile -t mine/centos:1.0
 使用参数`--volumes-from` 来实现多个容器之间的数据同步，这里实现 `centos2` 对 `centos1` 的同步：
 
 ```bash
-docker run -it --name centos1 mine/centos:1.0
-docker run -it --name centos2 --volumes-from centos1 mine/centos:1.0
+docker run -it --name centos1 mycentos:1.0
+docker run -it --name centos2 --volumes-from centos1 mycentos:1.0
 ```
 
  ![image-20210129141417064](https://img-blog.csdnimg.cn/img_convert/5a3b513892633d7b730cef9a2dfe282f.png) 
@@ -502,3 +502,8 @@ mytomcat
 
 ## 1. Docker 网络原理
 
+当我们用`ip addr`命令查看服务器内部网络地址时，可以发现三个地址：
+
+- 127.0.0.1 **本机回环地址**
+- 172.17.223.207 **服务器内网IP地址**
+- 172.18.0.1 **docker0地址**
