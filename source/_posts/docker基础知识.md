@@ -420,7 +420,7 @@ docker run -it --name centos2 --volumes-from centos1 mycentos:1.0
 FROM			# 基础镜像,从此开始构建
 MAINTAINER		# 镜像作者,通常为姓名+邮箱
 RUN				# 镜像构建时需要执行的命令
-ADD				# 在镜像中需要添加的文件(比如基础镜像centos中要添加tomcat)
+ADD				# 在镜像中需要添加的文件(tar包会自动解压成目录)
 WORKDIR			# 镜像的工作目录
 VOLUME			# 容器数据卷,挂载主机的目录
 EXPOSE			# 对外的暴露端口
@@ -462,7 +462,7 @@ ENV MYPATH /usr/local
 WORKDIR $MYPATH
 
 ENV JAVA_HOME /usr/local/jdk
-ENV CALSSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 ENV CATALINA_HOME /usr/local/apache-tomcat-9.0.41
 ENV CATALINA_BASE /usr/local/apache-tomcat-9.0.41
 ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin

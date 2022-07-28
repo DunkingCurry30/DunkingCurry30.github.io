@@ -54,7 +54,7 @@ systemctl enable docker
 
 ```
 
-## docker常用命令
+# docker常用命令
 
 ![img](https://img-blog.csdnimg.cn/img_convert/06a539a30efc11ba47aa2767e15ce912.png)
 
@@ -64,7 +64,8 @@ docker build -t 镜像名称
 # 加载镜像tar包
 docker load -i xxx.tar
 # 删除镜像
-docker rmi 镜像名称
+docker rmi [-f] 镜像名称或ID 
+  -f, --force          强制删除
 # 保存镜像
 docker save hello-world:latest -o /home/docker/images/hello-world.tar
 # 启停容器

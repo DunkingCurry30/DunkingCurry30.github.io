@@ -66,7 +66,7 @@ DataX 完成单个数据同步的作业，我们称为 `Job`，DataX 接收到�
 wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz
 # 创建datax目录并解压
 mkdir /opt/docker/datax && mv datax.tar.gz /opt/docker/datax
-tar zxf datax.tar.gz -C /usr/local/
+cd /opt/docker/datax && tar zxf datax.tar.gz -C /usr/local/
 # 需要删除隐藏文件 (重要)
 rm -rf /usr/local/datax/plugin/*/._*
 ```
@@ -288,3 +288,58 @@ crontab -e
 
 ## 4. 将 DataX 制作成docker镜像
 
+> 需事先准备一个 `python2.7+jdk1.8` 的docker基础镜像 
+
+### 4.1 镜像制作
+
+这里使用一个 `centos7 + jdk1.8` 的基础镜像，在此镜像基础上安装 DataX ：
+
+```bash
+# 通过镜像启动容器并进入容器, mycentos 为要创建的容器名, ae67f82978bc 为镜像ID
+[root@VM-12-14-centos]# docker run -it --name mycentos ae67f82978bc
+# 进入容器后确认java和python环境
+[root@4696780785e2 /]# java -version
+openjdk version "1.8.0_191"
+OpenJDK Runtime Environment (build 1.8.0_191-b12)
+OpenJDK 64-Bit Server VM (build 25.191-b12, mixed mode)
+[root@4696780785e2 /]# python
+Python 2.7.5 (default, Oct 30 2018, 23:45:53) 
+[GCC 4.8.5 20150623 (Red Hat 4.8.5-36)] on linux2
+```
+
+接下来参考步骤 1 安装 `DataX` ：
+
+```bash
+# 获取datax软件包
+wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz
+# 创建datax目录并解压
+mkdir /opt/datax && mv datax.tar.gz /opt/datax
+cd /opt/datax && tar zxf datax.tar.gz -C /usr/local/
+# 需要删除隐藏文件 (重要)
+rm -rf /usr/local/datax/plugin/*/._*
+```
+
+安装完成后，创建`DataX` 配置`json` 的目录以便之后挂载，创建后退出容器；
+
+```bash
+[root@4696780785e2 datax]# mkdir sourcetable_conf  
+[root@4696780785e2 datax]# exit
+```
+
+ `Commit` 创建新的 `DataX` 基础镜像 `mydatax:july` ：
+
+```bash
+docker commit -m="基于jdk1.8和python2.7的datax镜像" 4696780785e2 mydatax:july
+```
+
+使用以下命令挂载服务器 `sourcetable_conf` ` 到容器`/opt/datax/sourcetable_conf` 目录，将数据同步`json` 上传至这个目录，即可在容器中进行利用 DataX 操作：
+
+```bash
+docker run -d -it -v /opt/docker/datax/sourcetable_conf:/opt/datax/sourcetable_conf --name datax mydatax:july 
+```
+
+
+
+### 4.2 jenkins 调度容器
+
+待更新
