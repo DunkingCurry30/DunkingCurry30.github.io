@@ -7,8 +7,6 @@ categories:
   - 数据库
 ---
 
-> 参考文章： [使用 DataX 实现数据同步](https://blog.csdn.net/weixin_46902396/article/details/121904705?ops_request_misc=%7B%22request%5Fid%22%3A%22165888267516782248545606%22%2C%22scm%22%3A%2220140713.130102334..%22%7D&request_id=165888267516782248545606&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-121904705-null-null.142^v35^experiment_2_v1,185^v2^control&utm_term=datax&spm=1018.2226.3001.4187) 
-
 # 一、DataX 简介
 
 DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于实现数据间的离线同步。 DataX 致力于实现包括关系型数据库（MySQL、Oracle 等）、HDFS、Hive、ODPS、HBase、FTP 等 各种异构数据源（即不同的数据库） 间稳定高效的数据同步功能。
