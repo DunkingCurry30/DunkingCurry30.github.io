@@ -164,3 +164,22 @@ BUILD_ID=dontKillMe nohup java -jar SpringbootDemo-0.0.1-SNAPSHOT.jar >> systemO
 ![1659532518067](../blog-assets/Jenkins基础知识/1659532518067.png)
 
 至此，收工！
+
+### 3.3 批量删除Jenkins历史构建记录
+
+`系统管理 — 脚本命令行`，输入以下命令：
+
+```python
+def jobName = "一个 Maven 项目的构建部署"   //删除的项目名称
+def maxNumber = 32    // 保留的最小编号，意味着小于该编号的构建都将被删除
+
+Jenkins.instance.getItemByFullName(jobName).builds.findAll {
+  it.number <= maxNumber
+}.each {
+  it.delete()
+}
+```
+
+点击运行，即可看到被删除的构建记录：
+
+![1659533030820](../blog-assets/Jenkins基础知识/1659533030820.png)
