@@ -163,7 +163,7 @@ BUILD_ID=dontKillMe nohup java -jar SpringbootDemo-0.0.1-SNAPSHOT.jar >> systemO
 
 ![1659532518067](../blog-assets/Jenkins基础知识/1659532518067.png)
 
-至此，收工！
+至此，服务器部署完成！
 
 ### 3.3 批量删除Jenkins历史构建记录
 
