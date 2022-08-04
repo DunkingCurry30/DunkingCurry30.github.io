@@ -330,7 +330,7 @@ rm -rf /usr/local/datax/plugin/*/._*
 docker commit -m="基于jdk1.8和python2.7的datax镜像" 4696780785e2 mydatax:july
 ```
 
-使用以下命令挂载服务器 `sourcetable_conf` ` 到容器`/opt/datax/sourcetable_conf` 目录，将数据同步`json` 上传至这个目录，即可在容器中进行利用 DataX 操作：
+使用以下命令挂载服务器 `sourcetable_conf`到容器`/opt/datax/sourcetable_conf` 目录，将数据同步`json` 上传至这个目录，即可在容器中进行利用 DataX 操作：
 
 ```bash
 docker run -d -it -v /opt/docker/datax/sourcetable_conf:/opt/datax/sourcetable_conf --name datax mydatax:july 

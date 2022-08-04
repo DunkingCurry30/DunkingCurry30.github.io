@@ -183,3 +183,74 @@ Jenkins.instance.getItemByFullName(jobName).builds.findAll {
 点击运行，即可看到被删除的构建记录：
 
 ![1659533030820](../blog-assets/Jenkins基础知识/1659533030820.png)
+
+
+
+## 4. 构建部署 docker 镜像
+
+
+
+创建项目，配置`git`、`maven` 同前一节，区别在于任务配置中的`构建后操作`:
+
+### 4.1 编写并上传 Dockerfile
+
+构建镜像需要配置`Dockerfile` ，因此我们在项目根目录创建 `Dockerfile` ：
+
+![1659617197413](../blog-assets/Jenkins基础知识/1659617197413.png)
+
+`Dockerfile` 内容如下：
+
+```dockerfile
+# centos7 + jdk1.8 的基础镜像（java版本和项目用的保持一致即可）
+FROM xxlaila/centos7.6-jdk1.8:latest
+MAINTAINER dunkingcurry
+
+RUN mkdir -p "/opt/docker/app"
+
+ADD SpringbootDemo-0.0.1-SNAPSHOT.jar /opt/docker/app/SpringbootDemo-0.0.1-SNAPSHOT.jar
+
+WORKDIR /opt/docker/app/appconfig
+
+#对外暴露端口
+EXPOSE 8089
+
+#启动jar包
+CMD java -jar /opt/docker/app/SpringbootDemo-0.0.1-SNAPSHOT.jar
+```
+
+将代码提交后，jenkins 任务执行后的工作空间根目录就会有我们编写 `Dockerfile` ；
+
+![1659617468659](../blog-assets/Jenkins基础知识/1659617468659.png)
+
+接下来通过`构建后操作`首先将它上传到服务器的指定目录；
+
+![1659617542463](../blog-assets/Jenkins基础知识/1659617542463.png)
+
+### 4.2 上传 jar 包
+
+然后上传 `jar`包至部署服务器的指定目录：
+
+![1659618011817](../blog-assets/Jenkins基础知识/1659618011817.png)
+
+### 4.3 构建镜像并启动容器
+
+参考 `4.2` 图中 `Exec command` 配置：
+
+```bash
+# 停止正在运行的 springboot 容器
+docker stop springboot
+# 删除 springboot 容器
+docker rm springboot
+# 删除 springboot 镜像
+docker rmi springboot:v1 
+# 构建新的镜像
+docker build -t springboot:v1 .
+# 启动容器，这里使用了centos镜像，需要加 -it 保持容器不退出
+docker run -d -it -p 8089:8089 --name springboot springboot:v1
+```
+
+保存配置后，回到任务面板，点击 `立即构建` 后，查看控制台输出成功后，查看容器状态，访问测试接口如下：
+
+![1659618377754](../blog-assets/Jenkins基础知识/1659618377754.png)
+
+至此，收工！
