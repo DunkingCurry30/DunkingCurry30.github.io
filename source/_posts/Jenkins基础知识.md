@@ -5,6 +5,7 @@ tags:
   - jenkins
 categories: 
   - DevOps
+  - 基础知识
   - Jenkins
 
 ---
