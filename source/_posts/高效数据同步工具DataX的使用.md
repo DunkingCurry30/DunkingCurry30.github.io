@@ -10,7 +10,7 @@ categories:
 # 一、DataX 简介
 
 DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于实现数据间的离线同步。 DataX 致力于实现包括关系型数据库（MySQL、Oracle 等）、HDFS、Hive、ODPS、HBase、FTP 等 各种异构数据源（即不同的数据库） 间稳定高效的数据同步功能。
- ![在这里插入图片描述](../blog-assets/高效数据同步工具DataX的使用/3aae50a131fc4f4faf6f69f4e185a918.png) 
+ ![](../blog-assets/高效数据同步工具DataX的使用/3aae50a131fc4f4faf6f69f4e185a918.png) 
 
 - 为了 **解决异构数据源同步问题，DataX 将复杂的网状同步链路变成了星型数据链路**，DataX 作为中间传输载体负责连接各种数据源；
 - 当需要接入一个新的数据源时，只需要将此数据源对接到 DataX，便能跟已有的数据源作为无缝数据同步。
@@ -19,7 +19,7 @@ DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于�
 
 DataX 采用 Framework + Plugin 架构，将数据源读取和写入抽象称为 Reader/Writer 插件，纳入到整个同步框架中。 
 
- ![在这里插入图片描述](../blog-assets/高效数据同步工具DataX的使用/3c7df1cbc3f0482baef9fe451ab690fe.png) 
+ ![](../blog-assets/高效数据同步工具DataX的使用/3c7df1cbc3f0482baef9fe451ab690fe.png) 
 
 | 角色                | 作用                                                         |
 | ------------------- | ------------------------------------------------------------ |
@@ -33,7 +33,7 @@ DataX 采用 Framework + Plugin 架构，将数据源读取和写入抽象称为
 
 DataX 完成单个数据同步的作业，我们称为 `Job`，DataX 接收到一个 `Job` 后，将启动一个进程来完成整个作业同步过程。**DataX Job 模块是单个作业的中枢管理节点，承担了数据清理、子任务切分、TaskGroup 管理等功能**。 
 
-![在这里插入图片描述](../blog-assets/高效数据同步工具DataX的使用/32f6c08c122b42ad82756b3801d498e7.png) 
+![](../blog-assets/高效数据同步工具DataX的使用/32f6c08c122b42ad82756b3801d498e7.png) 
 
 - DataX Job 启动后，会根据不同源端的切分策略，将 `Job` 切分成多个小的 `Task` (子任务)，以便于**并发执行**；
 - 接着 DataX Job 会调用 `Scheduler` 模块，根据配置的并发数量，将拆分成的 `Task` 重新组合，组装成 `TaskGroup`（任务组）；
