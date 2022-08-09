@@ -182,7 +182,7 @@ to run the job.
                         // 目标数据库连接用户
                         "username": "root",
                         // 目标数据库连接密码
-                        "password": "wwj9800",
+                        "password": "root",
                         "connection": [
                             {
                                 // 目标数据库连接
