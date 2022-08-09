@@ -146,9 +146,9 @@ docker login -u 用户名 -p 密码 SERVER_ HOSTIP:8771
 
 ```bash
 # 标记镜像并归入私有仓库
-docker tag springboot:v1 SERVER_ HOSTIP/springbootdemo/springboot:v1
+docker tag springboot:v1 SERVER_ HOSTIP:8771/springbootdemo/springboot:v1
 # 上传至私有仓库
-docker push SERVER_ HOSTIP/springbootdemo/springboot:v1
+docker push SERVER_ HOSTIP:8771/springbootdemo/springboot:v1
 ```
 
 上传成功后，在 `JCR` Web端查看：
@@ -160,6 +160,6 @@ docker push SERVER_ HOSTIP/springbootdemo/springboot:v1
 使用以下命令拉取仓库中的镜像即可：
 
 ```bash
-docker push SERVER_ HOSTIP:8771/springbootdemo/springboot:v1
+docker pull SERVER_ HOSTIP:8771/springbootdemo/springboot:v1
 ```
 
