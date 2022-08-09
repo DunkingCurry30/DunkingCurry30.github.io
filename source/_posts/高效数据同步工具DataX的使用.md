@@ -169,7 +169,7 @@ to run the job.
                         "column": ["*"], 
                         "connection": [{
                                 // 源数据库连接
-                                "jdbcUrl": ["jdbc:mysql://43.142.82.204:3660/studysource?useUnicode=true&characterEncoding=utf8"], 
+                                "jdbcUrl": ["jdbc:mysql://127.1.2.3:3360/studysource?useUnicode=true&characterEncoding=utf8"], 
                                 // 源表
                                 "table": ["staff_info"]
                         }]
@@ -186,7 +186,7 @@ to run the job.
                         "connection": [
                             {
                                 // 目标数据库连接
-                                "jdbcUrl": "jdbc:mysql://81.69.231.145:3606/studysync?useUnicode=true&characterEncoding=utf8", 
+                                "jdbcUrl": "jdbc:mysql://127.2.3.4:3360/studysync?useUnicode=true&characterEncoding=utf8", 
                                 // 目标表
                                 "table": ["staff_info"]
                             }
