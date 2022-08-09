@@ -164,7 +164,7 @@ to run the job.
                         // 源数据库连接用户
                         "username": "root",
                         // 源数据库连接密码
-                        "password": "wwj9800",
+                        "password": "root",
                         // 需要同步的列 (* 表示所有的列)
                         "column": ["*"], 
                         "connection": [{
