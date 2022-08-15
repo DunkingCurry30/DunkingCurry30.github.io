@@ -33,7 +33,7 @@ categories:
 
  `worker` 节点由以下组件组成： 
 
-- **Controller Runtime**：下载镜像和运行容器的组件，负责镜像管理以及 `Pod` 和容器的真正运行[CRI]( [Kubernetes(k8s)CRI(容器运行时)简介_飞翔的乌龟的博客-CSDN博客_k8s 容器运行时](https://blog.csdn.net/u013533380/article/details/115682900) )；
+- **Controller Runtime**：下载镜像和运行容器的组件，负责镜像管理以及 `Pod` 和容器的真正运行[CRI](https://blog.csdn.net/u013533380/article/details/115682900)；
 - **Pod**：`k8s` 中特有的一个概念，可以理解为对容器的包装，是 `k8s` 的基本调度单位，实际的容器时运行在 `Pod` 中的，一个节点可以启动一个或多个 `Pod`；
 - **kubelet**：负责管理 `worker` 节点上的组件，与 `master` 节点上的 `API server` 节点进行交互，接受指令执行操作；
 - **kube-proxy**：负责对 `Pod` 进行寻址和负载均衡。
