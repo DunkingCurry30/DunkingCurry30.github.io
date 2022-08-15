@@ -94,7 +94,7 @@ ActionMailer::Base.delivery_method
 ActionMailer::Base.smtp_settings
 
 #发送测试邮件，查看是否收到
-Notify.test_email('157468143@qq.com','Hello World', 'This is a test message').deliver_now
+Notify.test_email('xxxxxxxxx@qq.com','Hello World', 'This is a test message').deliver_now
 ```
 
 
