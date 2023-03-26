@@ -1,6 +1,6 @@
 ---
-title: CURD效率提升——Mybatis-Plus
-date: 2022/12/23 20:00:00
+title: MybatisX提升CRUD效率
+date: 2023/03/19 20:00:00
 tags: 
   - CRUD
 categories: 
