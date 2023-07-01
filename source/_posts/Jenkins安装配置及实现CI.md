@@ -31,14 +31,16 @@ vim docker-compose.yml
 version: '3'
 services:
     jenkins:
-        image: jenkins/jenkins  #jenkins镜像
+        image: jenkinsci/blueocean  #jenkins镜像
         container_name: jenkins  #容器名
         restart: always
+        environment:
+            JAVA_OPTS : "-server -Xms1024m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
         ports:
-        	- '8080:8080'  #发布端口
+            - '8998:8080'  #发布端口
             - '50000:50000'  #基于 JNLP 的 Jenkins 代理通过 TCP 端口 50000 与 Jenkins master 进行通信
         volumes:
-        	- ./data:/var/jenkins_home  #工作目录挂载到外部服务器
+                - ./data:/var/jenkins_home  #工作目录挂载到外部服务器
 ```
 
 执行命令启动 `jenkins` 容器
