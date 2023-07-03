@@ -11,6 +11,11 @@ categories:
 
 # Jenkins安装配置
 
+> 2023/7/3 更新
+>
+> - jenkins最新版本由于其他影响大部分插件无法安装，可下列参考 ：
+> -  [ docker环境下安装最新版本jenkins](https://blog.csdn.net/xiezuozhen/article/details/129329626?ops_request_misc=%7B%22request%5Fid%22%3A%22168820093716800213062283%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fall.%22%7D&request_id=168820093716800213062283&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~times_rank-1-129329626-null-null.142^v88^koosearch_v1,239^v2^insert_chatgpt&utm_term=docker jenkins安装&spm=1018.2226.3001.4187) 
+>
 
 
 ## 1. docker-compose 启动 Jenkins
