@@ -217,3 +217,131 @@ public class DimBusiOrderInfo extends BaseDO {
 
 
 
+# 二、MP 代码生成器
+
+>  适用版本：mybatis-plus-generator 3.5.1 及其以上版本 
+
+## 配置准备
+
+- 基础Entity类 BaseDO
+- 自动填充实现类 MyMetaObjectHandler
+- 以下依赖引入
+
+```xml
+<!-- Mybatis-plus-join 依赖  -->
+<dependency>
+    <groupId>com.github.yulichang</groupId>
+    <artifactId>mybatis-plus-join-boot-starter</artifactId>
+    <version>1.4.5</version>
+</dependency>
+<!-- Mybatis-plus generator-->
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-generator</artifactId>
+    <version>3.5.1</version>
+</dependency>
+<!-- free maker 模板-->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+</dependency>
+```
+
+> 注意，此处使用了 Mybatis-plus-join 做联表增强，若只使用MP功能可不引入，对应在下述配置中修改对应BaseMapper、BaseService即可
+
+## 自定义代码生成器实现
+
+具体代码实现如下：
+
+```java
+/**
+ * Mybatis Plus 代码生成器
+ * @author : DunkingCurry
+ * @createTime : 15/7/2023 下午12:42
+ */
+public class MpFastAutoGenerator {
+
+    /**
+     * 执行 run
+     */
+    public static void main(String[] args){
+
+        // 需要生成代码的数据表清单, 英文逗号,分隔
+        String tableNames = "test_table_template";
+
+        // 数据源配置
+        String url = "jdbc:mysql://127.0.0.1:3306/devdb?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true";
+        String username = "root";
+        String password = "root";
+        String projectPath = System.getProperty("user.dir");
+
+        FastAutoGenerator
+                // 数据源配置
+                .create(url, username, password)
+                // 全局配置
+                .globalConfig(builder -> builder.fileOverride()
+                        .outputDir(projectPath + "/src/main/java")
+                        .disableOpenDir()
+                        .author("DunkingCurry")
+                        .enableSwagger()
+                        .dateType(DateType.ONLY_DATE)
+                        .commentDate("yyyy-MM-dd"))
+                // 包配置
+                .packageConfig(builder -> builder.parent("com.learn.sc.springbootdemo")
+                        .entity("dao.entity")
+                        .service("service")
+                        .serviceImpl("service.impl")
+                        .mapper("dao.mapper")
+                        .controller("web.controller")
+                        // 自定义Mapper XML位置至resource目录下
+                        .pathInfo(Collections.singletonMap(OutputFile.mapperXml, projectPath + "/src/main/resources/mapper/default")))
+                // 策略配置
+                .strategyConfig(builder -> builder
+                        // -- 生成表清单 --
+                        .addInclude(tableNames.trim().split(","))
+                        // -- Entity 策略配置 --
+                        .entityBuilder()
+                        // 设置entity父类
+                        .superClass(BaseDO.class)
+                        // 设置父类公共字段
+                        .addSuperEntityColumns("id", "bid", "created_by", "created_at", "updated_by", "updated_at", "deleted", "version")
+                        .formatFileName("%sDO")
+                        .disableSerialVersionUID()
+                        .enableChainModel()
+                        .enableLombok()
+                        .enableTableFieldAnnotation()
+                        .versionColumnName("version")
+                        // 逻辑删除字段
+                        .logicDeleteColumnName("deleted")
+                        // 设置字段映射为下划线转驼峰
+                        .naming(NamingStrategy.underline_to_camel)
+                        .columnNaming(NamingStrategy.underline_to_camel)
+                        // -- Controller --
+                        .controllerBuilder()
+                        .enableHyphenStyle()
+                        .enableRestStyle()
+                        .formatFileName("%sController")
+                        // -- Service 策略配置 --
+                        .serviceBuilder()
+                        .superServiceClass(MPJBaseService.class)
+                        .superServiceImplClass(MPJBaseServiceImpl.class)
+                        .formatServiceFileName("%sService")
+                        .formatServiceImplFileName("%sServiceImpl")
+                        // -- Mapper 策略配置 --
+                        .mapperBuilder()
+                        .superClass(MPJBaseMapper.class)
+                        .enableMapperAnnotation()
+                        .enableBaseResultMap()
+                        .enableBaseColumnList()
+                        .formatMapperFileName("%sMapper")
+                        .formatXmlFileName("%sMapper"))
+            	// 使用freemaker模板引擎, 需引入对应依赖
+                .templateEngine(new FreemarkerTemplateEngine())
+                // 执行
+                .execute();
+    }
+}
+
+```
+
+> 注：以上包含配置可参阅 [代码生成器配置新 | MyBatis-Plus](https://baomidou.com/pages/981406/#数据库配置-datasourceconfig) 进行自定义
