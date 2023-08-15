@@ -1,18 +1,15 @@
 ---
 title: Mybatis Plus提升CRUD效率（二）
-date: 2023/07/9 20:00:00
+date: 2023/07/09 20:00:00
 tags: 
   - CRUD
 categories: 
   - Java后端
   - 数据库
 ---
-
-
-
 # 一、MP 自动填充
 
-> 参考:  [自动填充功能 | MyBatis-Plus (baomidou.com)](https://baomidou.com/pages/4c6bcf/) 
+> 参考:  [自动填充功能 | MyBatis-Plus (baomidou.com)](https://baomidou.com/pages/4c6bcf/)
 
 ## 应用场景
 
@@ -78,7 +75,7 @@ public class BaseDO implements Serializable {
     @TableField(value = "deleted", fill = FieldFill.INSERT)
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;
-    
+  
     @ApiModelProperty(hidden = true)
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -93,7 +90,7 @@ public class BaseDO implements Serializable {
 
 ## 业务实践
 
-- 注解填充字段 `@TableField(.. fill = FieldFill.INSERT)` 
+- 注解填充字段 `@TableField(.. fill = FieldFill.INSERT)`
 
 其中枚举 `FieldFill` 可选值如下：
 
@@ -215,11 +212,9 @@ public class DimBusiOrderInfo extends BaseDO {
 }
 ```
 
-
-
 # 二、MP 代码生成器
 
->  适用版本：mybatis-plus-generator 3.5.1 及其以上版本 
+> 适用版本：mybatis-plus-generator 3.5.1 及其以上版本
 
 ## 配置准备
 

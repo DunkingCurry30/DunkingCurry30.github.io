@@ -1,22 +1,17 @@
 ---
 title: Mybatis Plus提升CRUD效率（一）
-date: 2023/03/19 20:00:00
+date: 2023/07/06 20:00:00
 tags: 
   - CRUD
 categories: 
   - Java后端
   - 数据库
 ---
-
-
-
 # 一、MybatisX 插件
 
- MyBatisX插件是[IDEA插件](https://so.csdn.net/so/search?q=IDEA插件&spm=1001.2101.3001.7020)，如果想要使用它，那么首先需要在IDEA中进行安装（Markplace搜索安装即可)。 
+MyBatisX插件是[IDEA插件](https://so.csdn.net/so/search?q=IDEA插件&spm=1001.2101.3001.7020)，如果想要使用它，那么首先需要在IDEA中进行安装（Markplace搜索安装即可)。
 
 ![1679233048370](../blog-assets/EasyExcel用法/1679233048370.png)
-
-
 
 ## 1、插件用途：接口与 mapper.xml 跳转
 
@@ -27,8 +22,6 @@ categories:
 同样，在 `mapper.xml` 文件中也会出现蓝色小鸟标识（如下图），点击即可跳转至对应`mapper` 接口。
 
 ![1679233427492](../blog-assets/EasyExcel用法/1679233427492.png)
-
-
 
 ## 2、插件进阶用途I：代码快速生成
 
@@ -46,8 +39,6 @@ categories:
 
 ![1679233992315](../blog-assets/EasyExcel用法/1679233992315.png)
 
-
-
 ## 3、插件进阶用途II：CRUD快速生成
 
 在代码生成的 `mapper` 接口中，不需要写返回值，只需要依据以下语法写方法名：
@@ -56,7 +47,7 @@ categories:
 > update —— 更新
 > delete —— 删除
 > by 条件
-> and 连接条件 
+> and 连接条件
 
 ![1679234674131](../blog-assets/EasyExcel用法/1679234674131.png)
 
@@ -69,8 +60,6 @@ categories:
 ![1679234926792](../blog-assets/EasyExcel用法/1679234926792.png)
 
 ![1679234953410](../blog-assets/EasyExcel用法/1679234953410.png)
-
-
 
 ## 4、插件进阶用途III：mybatis-plus 的使用
 
@@ -89,13 +78,10 @@ categories:
 
 ![1679236285692](../blog-assets/EasyExcel用法/1679236285692.png)
 
-
-
-
 # 二、Mybatis Plus
 
 > - 此处只大致介绍Mybatis Plus，详细应用请移步官方文档
-> - Mybatis Plus 官方参考文档： [MyBatis-Plus (baomidou.com)](https://baomidou.com/) 
+> - Mybatis Plus 官方参考文档： [MyBatis-Plus (baomidou.com)](https://baomidou.com/)
 
 ## 1. MP 实体类
 
@@ -157,7 +143,7 @@ public class BaseDO implements Serializable {
     @TableField(value = "deleted", fill = FieldFill.INSERT)
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;
-    
+  
     @ApiModelProperty(hidden = true)
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -175,29 +161,32 @@ public class BaseDO implements Serializable {
 - 描述：主键注解
 - 使用位置：实体类主键字段
 
+
 | 属性  | 类型   | 必须指定 | 默认值      | 描述         |
-| :---- | :----- | :------- | :---------- | :----------- |
+| :------ | :------- | :--------- | :------------ | :------------- |
 | value | String | 否       | ""          | 主键字段名   |
 | type  | Enum   | 否       | IdType.NONE | 指定主键类型 |
 
 #### IdType
 
-| 值            | 描述                                                         |
-| :------------ | :----------------------------------------------------------- |
-| AUTO          | 数据库 ID 自增                                               |
-| NONE          | 无状态，该类型为未设置主键类型（注解里等于跟随全局，全局里约等于 INPUT） |
-| INPUT         | insert 前自行 set 主键值                                     |
+
+| 值    | 描述                                                                     |
+| :------ | :------------------------------------------------------------------------- |
+| AUTO  | 数据库 ID 自增                                                           |
+| NONE  | 无状态，该类型为未设置主键类型（注解里等于跟随全局，全局里约等于 INPUT） |
+| INPUT | insert 前自行 set 主键值                                                 |
 
 ### @TableField
 
 - 描述：字段注解（非主键）
 
-| 属性           | 类型    | 必须指定 | 默认值                | 描述                                                         |
-| :------------- | :------ | :------- | :-------------------- | :----------------------------------------------------------- |
-| value          | String  | 否       | ""                    | 数据库字段名                                                 |
-| exist          | boolean | 否       | true                  | 是否为数据库表字段                                           |
-| condition      | String  | 否       | ""                    | 字段 `where` 实体查询比较条件，有值设置则按设置的值为准，没有则为默认全局的 `%s=#{%s}`，[参考(opens new window)](https://github.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-annotation/src/main/java/com/baomidou/mybatisplus/annotation/SqlCondition.java) |                |
-| fill           | Enum    | 否       | FieldFill.DEFAULT     | 字段自动填充策略                                             |
+
+| 属性      | 类型    | 必须指定 | 默认值            | 描述                                                                                                                                                                                                                                                           |
+| :---------- | :-------- | :--------- | :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value     | String  | 否       | ""                | 数据库字段名                                                                                                                                                                                                                                                   |
+| exist     | boolean | 否       | true              | 是否为数据库表字段                                                                                                                                                                                                                                             |
+| condition | String  | 否       | ""                | 字段`where` 实体查询比较条件，有值设置则按设置的值为准，没有则为默认全局的 `%s=#{%s}`，[参考(opens new window)](https://github.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-annotation/src/main/java/com/baomidou/mybatisplus/annotation/SqlCondition.java) |
+| fill      | Enum    | 否       | FieldFill.DEFAULT | 字段自动填充策略                                                                                                                                                                                                                                               |
 
 其中 `fill` 自动填充需配合 `MetaObjectHandler` 使用，可参考 [Mybatis Plus 提升CRUD效率（二）]()
 
@@ -205,8 +194,9 @@ public class BaseDO implements Serializable {
 
 - 描述：表字段逻辑处理注解（逻辑删除）
 
+
 | 属性   | 类型   | 必须指定 | 默认值 | 描述         |
-| :----- | :----- | :------- | :----- | :----------- |
+| :------- | :------- | :--------- | :------- | :------------- |
 | value  | String | 否       | ""     | 逻辑未删除值 |
 | delval | String | 否       | ""     | 逻辑删除值   |
 
@@ -221,7 +211,7 @@ public class BaseDO implements Serializable {
 
 ## 2. 单表查询CRUD
 
-> 阅读本节需结合Mybatis-Plus 中 Wrapper 对象即条件构造器的官方文档  [条件构造器 | MyBatis-Plus ](https://baomidou.com/pages/10c804/#abstractwrapper?login=from_csdn) 
+> 阅读本节需结合Mybatis-Plus 中 Wrapper 对象即条件构造器的官方文档  [条件构造器 | MyBatis-Plus ](https://baomidou.com/pages/10c804/#abstractwrapper?login=from_csdn)
 
 接上节可知，我们利用MybatisX插件可快速逆向生成单表的对象、service和mapper，其中都继承了MP的 `IService` 及 `BaseMapper`，里面封装对单表查询的常用方法，如此以来，简单CRUD我们无需在XML中编写SQL方式去实现，例如：
 

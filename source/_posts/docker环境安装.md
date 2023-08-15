@@ -412,3 +412,109 @@ alter user 'root'@'%' identified with mysql_native_password by '你的密码';
 flush privileges;
 ```
 
+# docker-compose 安装 kodbox
+
+创建 `MySQL` 目录， 创建文件.env来设置环境变量（必须修改等号右边的值，形式如 `MYSQL_USER=kodbox`，值不要包含&符号），这些在docker启动时会自动传入容器 
+
+```bash
+mkdir -p /opt/docker/kodbox && cd /opt/docker/kodbox
+vim .env
+```
+
+```bash
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=kodbox
+MYSQL_USER=kodbox
+MYSQL_PASSWORD=kodbox
+```
+
+在目录下创建 `docker-compose.yml` 文件
+
+```bash
+vim docker-compose.yml
+```
+
+内容如下
+
+```yaml
+version: '3.5'
+
+services:
+  db:
+      image: mariadb  #mysql镜像，可指定标签
+      command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+      restart: always
+      environment:
+          - "TZ=Asia/Shanghai"
+          - "MYSQL_ROOT_PASSWORD"
+          - "MYSQL_DATABASE"
+          - "MYSQL_USER"
+          - "MYSQL_PASSWORD"
+      volumes:
+      	  - "./data/mysql/db:/var/lib/mysql"  #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
+      	  - "./data/mysql/conf:/etc/mysql/conf.d"  #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf 
+      
+  app:
+      image: kodcloud/kodbox
+      ports:
+      	  - 5890:80                       #左边80是使用端口，可以修改
+      links:
+          - db
+      	  - redis
+      volumes:
+      	  - "./site:/var/www/html"      #./site是站点目录位置，可以修改
+      restart: always
+
+  redis:
+      image: redis:alpine
+      environment:
+      	  - "TZ=Asia/Shanghai"
+      restart: always
+      volumes:      
+      	  - ./data/redis/data:/data
+      	  - ./data/redis/conf/redis.conf:/etc/redis/redis.conf
+```
+
+执行命令启动 `kodbox`、`mysql`、`redis` 三个容器，查看是否启动成功
+
+```bash
+docker-compose up -d
+```
+
+启动成功后通过 `IP:5890` 访问网盘安装页面，在数据库配置页面修改将`MySQL` 和 `Redis`修改如下即可正常访问网盘
+
+![1692107656366](../blog-assets/docker环境安装/1692107656366.png)
+
+# docker-compose 安装 Onlyoffice
+
+创建 `Onlyoffice` 目录，在目录下创建 `docker-compose.yml` 文件
+
+```bash
+mkdir -p /opt/docker/onlyoffice && cd /opt/docker/onlyoffice
+vim docker-compose.yml
+```
+
+内容如下
+
+```yaml
+version: '3.5'
+services:
+    onlyoffice:
+        image: onlyoffice/documentserver     # 镜像名称
+        container_name: onlyoffice     # 容器名字
+        restart: always     # 开机自动重启
+        ports:     # 端口号绑定（宿主机:容器内）
+            - '76531:80'
+        volumes:      # 目录映射（宿主机:容器内）
+            - ./data/logs:/var/log/onlyoffice
+            - ./data/data:/var/www/onlyoffice/Data 
+            - ./data/lib:/var/lib/onlyoffice 
+            - ./data/db:/var/lib/postgresql 
+```
+
+执行命令启动 `Onlyoffice` 容器，查看是否启动成功
+
+```bash
+docker-compose up -d
+```
+
