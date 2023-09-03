@@ -14,11 +14,11 @@ categories:
 
 ## 方案设计
 
-![按模板自动化生成pdf](../blog-assets/Free Marker按模板生成文件/按模板自动化生成pdf.png)
+![按模板自动化生成pdf](../blog-assets/按模板生成PDF/按模板自动化生成pdf.png)
 
 ## Demo示例
 
-![demo](../blog-assets/Free Marker按模板生成文件/demo.png)
+![demo](../blog-assets/按模板生成PDF/demo.png)
 
 
 
@@ -255,9 +255,9 @@ categories:
 
 原生图表风格：
 
-![原生JfreeChart](../blog-assets/Free Marker按模板生成文件/1693726933835.png)
+![原生JfreeChart](../blog-assets/按模板生成PDF/1693726933835.png)
 
- 美化后图表风格：![img](../blog-assets/Free Marker按模板生成文件/aHR0cDovL3N0YXRpYy5vc2NoaW5hLm5ldC91cGxvYWRzL3NwYWNlLzIwMTQvMDYxMS8xNzUxMTlfcVJvMF84NTUwMTkucG5n.png) 
+ 美化后图表风格：![img](../blog-assets/按模板生成PDF/aHR0cDovL3N0YXRpYy5vc2NoaW5hLm5ldC91cGxvYWRzL3NwYWNlLzIwMTQvMDYxMS8xNzUxMTlfcVJvMF84NTUwMTkucG5n.png) 
 
 美化工具类`ChartConfUtils.java`：
 
