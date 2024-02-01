@@ -122,32 +122,92 @@ public void easyExcelExport(HttpServletResponse response) {
 ```java
 /**
  * excel表格读取监视器
+ *
+ * @author DunkingCurry
  */
-public class ExcelListener extends AnalysisEventListener{
-    private final Logger logger = LoggerFactory.getLogger(ExcelListener.class);
+@Slf4j
+public class ExcelListener<T> extends AnalysisEventListener<T> {
 
     private static int dataCount = 0;
-    
-    List<Object> list = new ArrayList<>();
+
+    List<String> errors = new ArrayList<>();
+
+    List<T> data = new ArrayList<>();
 
     @Override
-    public void invoke(Object o, AnalysisContext analysisContext) {
-        logger.info("成功解析到一条数据:{}", JSONObject.toJSONString(o));
-        dataCount ++;
-        list.add(o);
+    public void invoke(T o, AnalysisContext analysisContext) {
+        log.info("成功解析到一条数据:{}", JSONObject.toJSONString(o));
+        dataCount++;
+        data.add(o);
     }
-    
+
     @Override
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
-        logger.info(("成功读取共"+dataCount+"条数据"));
-    }
-    
-    public List<Object> getDatas() {
-        return datas;
+        log.info(("成功读取共" + dataCount + "条数据"));
     }
 
-    public void setDatas(List<Object> datas) {
-        this.datas = datas;
+    public List<T> getData() {
+        return data;
+    }
+
+    public void setData(List<T> data) {
+        this.data = data;
+    }
+
+    /**
+     * 参数校验
+     * @param data 校验内容
+     * @param offset 提示语行数偏移修正
+     * @return 校验结果
+     */
+    public List<String> validate(List<T> data, int offset) {
+        // 需结合@Valid相关注解使用
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        for (int i = 0; i < data.size(); i++) {
+            Set<ConstraintViolation<T>> validate = validator.validate(data.get(i));
+            if (!CollectionUtils.isEmpty(validate)) {
+                String errorMessage = "第" + (i + offset) + "行数据校验有误:" +
+                        validate.stream().map(ConstraintViolation::getMessage)
+                                .collect(Collectors.joining(",")) + ";";
+                errors.add(errorMessage);
+            }
+        }
+        return errors;
+    }
+
+    /**
+     * 重复行数校验
+     * @param data 校验内容
+     * @param offset 提示语行数偏移修正
+     * @return 校验结果
+     */
+    public List<String> checkDuplicate(List<T> data, int offset) {
+        for (int i = 0; i < data.size(); i++) {
+            T itemA = data.get(i);
+            List<Integer> duplicateRows = new ArrayList<>();
+            duplicateRows.add(i + offset);
+            for (int j = i + 1; j < data.size(); j++) {
+                T itemB = data.get(j);
+                // 比较对象请自定义重写equals和hashCode方法
+                if (itemA.equals(itemB)) {
+                    duplicateRows.add(j + offset);
+                }
+            }
+            if (duplicateRows.size() >= 1) {
+                String errorMessage = "第" + duplicateRows.stream().map(Object::toString)
+                        .collect(Collectors.joining("、")) + "行数据重复;";
+                errors.add(errorMessage);
+            }
+        }
+        
+        return errors;
+    }
+    
+    public List<String> validateAndCheckDuplicate(List<T> data, int offset){
+        List<String> validate = validate(data, offset);
+        List<String> duplicate = checkDuplicate(data, offset);
+        validate.addAll(duplicate);
+        return validate;
     }
 }
 ```
