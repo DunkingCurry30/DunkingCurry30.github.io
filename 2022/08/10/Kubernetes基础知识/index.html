@@ -1,0 +1,819 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、Kubernetes 简介Kubernetes 简称 k8s，是支持云原生部署的一个平台，起源于谷歌。谷歌早在十几年之前就对其应用，通过容器方式进行部署。  k8s 本质上就是用来简化微服务的开发和部署的，关注点包括自动修复和自动伸缩、调度和发布、调用链监控、配置管理、Metrics 监控、日志监控、弹性和容错、API 管理、服务安全等，k8s 将这些微服务的公共关注点以组件形式封装打包到 k">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DevOps(四）云原生 Kubernetes 基本概念">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2022/08/10/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、Kubernetes 简介Kubernetes 简称 k8s，是支持云原生部署的一个平台，起源于谷歌。谷歌早在十几年之前就对其应用，通过容器方式进行部署。  k8s 本质上就是用来简化微服务的开发和部署的，关注点包括自动修复和自动伸缩、调度和发布、调用链监控、配置管理、Metrics 监控、日志监控、弹性和容错、API 管理、服务安全等，k8s 将这些微服务的公共关注点以组件形式封装打包到 k">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/1660114244864.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/dd84c9bb8ca8048826e7a829e7a90c76.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/2c3d3c0338851ceae684c929131b6c73.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/7718c6b594cee7a4eb2ea702236f6c7e.png">
+<meta property="article:published_time" content="2022-08-10T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/1660114244864.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>DevOps(四）云原生 Kubernetes 基本概念 - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DevOps(四）云原生 Kubernetes 基本概念"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-10 20:00" pubdate>
+          2022年8月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DevOps(四）云原生 Kubernetes 基本概念</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、Kubernetes-简介"><a href="#一、Kubernetes-简介" class="headerlink" title="一、Kubernetes 简介"></a>一、Kubernetes 简介</h1><p><code>Kubernetes</code> 简称 <code>k8s</code>，是支持云原生部署的一个平台，起源于谷歌。谷歌早在十几年之前就对其应用，通过容器方式进行部署。 </p>
+<p><code>k8s</code> 本质上就是用来简化微服务的开发和部署的，关注点包括<strong>自动修复</strong>和<strong>自动伸缩</strong>、<strong>调度和发布</strong>、调用链监控、配置管理、Metrics 监控、日志监控、弹性和容错、API 管理、服务安全等，<code>k8s</code> 将这些微服务的公共关注点以组件形式封装打包到 <code>k8s</code> 这个大平台中，让开发人员在开发微服务时专注于业务逻辑的实现，而不需要去特别关系微服务底层的这些公共关注点，大大简化了微服务应用的开发和部署，提高了开发效率。</p>
+<h1 id="二、Kubernetes-架构"><a href="#二、Kubernetes-架构" class="headerlink" title="二、Kubernetes 架构"></a>二、Kubernetes 架构</h1><p> <code>k8s</code> 总体架构采用了经典的 <code>master slave</code> 架构模式，分 <code>master</code>节点和 <code>worker</code> 节点，节点可以是虚拟机也可以是物理机。 </p>
+<p><img src="/../blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/1660114244864.png" srcset="/img/loading.gif" lazyload alt="1660114244864"></p>
+<p> <code>master</code> 节点由以下组件组成：</p>
+<ul>
+<li><strong>etcd</strong>：一种的分布式存储机制，底层采用 <code>Raft</code> 协议，<code>k8s</code> 集群的状态数据包括配置、节点等都存储于 <code>etcd</code> 中，它保存了整个集群的状态；</li>
+<li><strong>API server</strong>：对外提供操作和获取 <code>k8s</code> 集群资源的的 API，是唯一操作 <code>etcd</code> 的组件，其他的组件包括管理员操作都是通过 <code>API server</code> 进行交互的，可以将它理解成 etcd 的 “代理人”；</li>
+<li><strong>Scheduler</strong>：在 <code>k8s</code> 集群中做调动决策，负责资源的调度，按照预定的调度策略将 <code>Pod</code> 调度到相应的机器上；</li>
+<li><strong>Controller Manager</strong>：相当于集群状态的协调者，观察着集群的实际状态，与 <code>etcd</code> 中的预期状态进行对比，如果不一致则对资源进行协调操作让实际状态和预期状态达到最终的一致，维护集群的状态，比如故障检测、自动扩展、滚动更新等。</li>
+</ul>
+<p> <code>worker</code> 节点由以下组件组成： </p>
+<ul>
+<li><strong>Controller Runtime</strong>：下载镜像和运行容器的组件，负责镜像管理以及 <code>Pod</code> 和容器的真正运行<a target="_blank" rel="noopener" href="https://blog.csdn.net/u013533380/article/details/115682900">CRI</a>；</li>
+<li><strong>Pod</strong>：<code>k8s</code> 中特有的一个概念，可以理解为对容器的包装，是 <code>k8s</code> 的基本调度单位，实际的容器时运行在 <code>Pod</code> 中的，一个节点可以启动一个或多个 <code>Pod</code>；</li>
+<li><strong>kubelet</strong>：负责管理 <code>worker</code> 节点上的组件，与 <code>master</code> 节点上的 <code>API server</code> 节点进行交互，接受指令执行操作；</li>
+<li><strong>kube-proxy</strong>：负责对 <code>Pod</code> 进行寻址和负载均衡。</li>
+</ul>
+<p>用户操作 <code>k8s</code> 集群一般是通过 <code>kubectl</code> 命令行工具或者 <code>dashboard</code>；<code>Pod</code> 之间进行通讯是通过集群内部的覆盖网络 <code>Overlay Network</code>，外部流量想要进入集群访问 <code>Pod</code> 则是通过负载均衡 <code>Load Balander</code> 设备进行。</p>
+<h1 id="三、Kunbernetes-有哪些核心概念？"><a href="#三、Kunbernetes-有哪些核心概念？" class="headerlink" title="三、Kunbernetes 有哪些核心概念？"></a>三、Kunbernetes 有哪些核心概念？</h1><h2 id="1-集群-Cluster"><a href="#1-集群-Cluster" class="headerlink" title="1. 集群 Cluster"></a>1. 集群 Cluster</h2><p> 集群有多个节点组成且可以按需添加节点（物理机&#x2F;虚拟机），每一个节点都包含一定数量的 CPU 和内存 RAM。 </p>
+<p> <img src="/../blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/dd84c9bb8ca8048826e7a829e7a90c76.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h2 id="2-容器-Container"><a href="#2-容器-Container" class="headerlink" title="2. 容器 Container"></a>2. 容器 Container</h2><p><code>k8s</code> 本身是一个容器调度平台，<strong>从宿主机操作系统来看，容器就是一个一个的进程。从容器内部来看容器就是一个操作系统</strong>，它有着自己的网络、CPU、文件系统等资源。 </p>
+<h2 id="3-POD"><a href="#3-POD" class="headerlink" title="3. POD"></a>3. POD</h2><p><code>k8s</code> 也不是直接调度容器的，而是将其封装成了一个个 <code>POD</code>。<code>POD</code> 才是 <code>k8s</code> 的基本调度单位<strong>。</strong>每个 <code>POD</code> 中可以运行一个或多个容器，共享 <code>POD</code> 的文件系统、IP 和网络等资源，每一个 <code>POD</code> 只有一个 IP。 </p>
+<p>那么有人会问，为什么要使用<code>POD</code>，为什么不能直接使用容器呢？ </p>
+<p>使用<code>POD</code>，相当于一个逻辑主机 ，<code>POD</code>的存在主要是让几个紧密连接的几个容器之间共享资源，例如IP地址，共享存储等信息。 例如你运行一个程序，其中使用了<code>nginx</code>、<code>mysql</code>，那么可以将这两个容器运行在同一个<code>POD</code>中，对他们提供统一的调配能力。如果直接调度容器的话，那么几个容器可能运行在不同的主机上，这样就增加了系统的复杂性。 </p>
+<p> <img src="/../blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/2c3d3c0338851ceae684c929131b6c73.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h2 id="4-副本集-ReplicaSet"><a href="#4-副本集-ReplicaSet" class="headerlink" title="4. 副本集 ReplicaSet"></a>4. 副本集 ReplicaSet</h2><p>一个应用发布时会发布多个 <code>POD</code> 实例，副本集可对应一个应用的一组 <code>POD</code>，它可以通过模板来规范某个应用的容器镜像、端口，副本数量等。运行时副本集会监控和维护 <code>POD</code>的数量，数量过多则会下线 <code>POD</code>，过少则启动 <code>POD</code>，即扩容与缩容。 </p>
+<h2 id="5-服务-service"><a href="#5-服务-service" class="headerlink" title="5. 服务 service"></a>5. 服务 service</h2><p>一方面，<code>POD</code> 在 <code>k8s</code> 中是不固定的，可能会挂起或者重启，且挂起重启都是不可预期的，那么这就会导致服务的 IP 也随着不停的变化，给用户的寻址造成一定的困难。</p>
+<p>另一方面，在集群当中，创建的 IP 地址等资源，只有在同一个集群中才能访问，每个<code>POD</code> 也有独一的 IP 地址，当有多个 <code>POD</code>  提供相同的服务的时候，就需要有负载均衡的能力 。</p>
+<p><code>service</code> 就是用来解决这些问题的，<strong>它屏蔽了应用的 IP 寻址和负载均衡，消费方可直接通过服务名来访问目标服务，寻址和负载均衡均由 <code>service</code> 底层进行</strong>。</p>
+<h2 id="6-发布-Deployment"><a href="#6-发布-Deployment" class="headerlink" title="6. 发布 Deployment"></a>6. 发布 Deployment</h2><p>副本集就是一种基本的发布机制，可以实现基本的或者高级的应用发布，但操作较为繁琐。为了简化这些操作，<code>k8s</code> 引入了 <code>Deployment</code> 来管理 <code>ReplicaSet</code>，实现一些高级发布机制。 </p>
+<p> <img src="/../blog-assets/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/7718c6b594cee7a4eb2ea702236f6c7e.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h2 id="7-ConfigMap-x2F-Secret"><a href="#7-ConfigMap-x2F-Secret" class="headerlink" title="7. ConfigMap&#x2F;Secret"></a>7. ConfigMap&#x2F;Secret</h2><p>微服务在上线时需要设置一些可变配置，环境不同则配置值不同，有些配置如数据库的连接字符串在启动时就应该配好，有些配置则可以在运行中动态调整。为了实现针对不同环境灵活实现动态配置，微服务就需要 <code>ConfigMap</code> 的支持。 </p>
+<p><code>k8s</code> 平台内置支持微服务的配置 <code>ConfigMap</code>，开发人员将配置填写在 <code>ConfigMap</code> 中，<code>k8s</code> 再 将 <code>ConfigMap</code> 中的配置以环境变量的形式注入 <code>POD</code>，这样 <code>POD</code> 中的应用就可以访问这些配置。 </p>
+<p><code>Secret</code> 是一种特殊的 <code>ConfigMap</code>，提供更加安全的存储和访问配置机制。</p>
+<h2 id="8-DaemonSet"><a href="#8-DaemonSet" class="headerlink" title="8. DaemonSet"></a>8. DaemonSet</h2><p>在微服务中，每个节点需要配置一个常驻守护进程。<code>DaemonSet</code> 可支持在每一个 worker 节点上面配置一个守护进程 <code>POD</code> 并且保证每一个节点上有且仅有一个 <code>POD</code>。 </p>
+<blockquote>
+<p>扩展阅读：<a target="_blank" rel="noopener" href="https://blog.csdn.net/TM6zNf87MDG7Bo/article/details/79621510?ops_request_misc=%7B%22request_id%22:%22166011313016782184685132%22,%22scm%22:%2220140713.130102334..%22%7D&request_id=166011313016782184685132&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-3-79621510-null-null.142%5Ev40%5Epc_rank_34_2,185%5Ev2%5Econtrol&utm_term=k8s&spm=1018.2226.3001.4187">为什么要使用 k8s ？</a> </p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevOps/" class="category-chain-item">DevOps</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/DevOps/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">基础知识</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/DevOps/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/docker/">#docker</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DevOps(四）云原生 Kubernetes 基本概念</div>
+      <div>http://dunkingcurry30.github.io/2022/08/10/Kubernetes基础知识/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月10日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/12/Jenkins%E8%BF%9B%E9%98%B6pipeline/" title="Jenkins 进阶（一）Pipeline">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Jenkins 进阶（一）Pipeline</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/10/Kubernetes%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Kubernetes 环境搭建">
+                        <span class="hidden-mobile">Kubernetes 环境搭建</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

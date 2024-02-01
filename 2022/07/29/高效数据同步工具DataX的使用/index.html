@@ -1,0 +1,889 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、DataX 简介DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于实现数据间的离线同步。 DataX 致力于实现包括关系型数据库（MySQL、Oracle 等）、HDFS、Hive、ODPS、HBase、FTP 等 各种异构数据源（即不同的数据库） 间稳定高效的数据同步功能。    为了 解决异构数据源同步问题，DataX 将复杂的网状同步链路变成了星型数据链路，Da">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高效数据同步工具DataX的使用">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2022/07/29/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、DataX 简介DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于实现数据间的离线同步。 DataX 致力于实现包括关系型数据库（MySQL、Oracle 等）、HDFS、Hive、ODPS、HBase、FTP 等 各种异构数据源（即不同的数据库） 间稳定高效的数据同步功能。    为了 解决异构数据源同步问题，DataX 将复杂的网状同步链路变成了星型数据链路，Da">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/3aae50a131fc4f4faf6f69f4e185a918.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/3c7df1cbc3f0482baef9fe451ab690fe.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/32f6c08c122b42ad82756b3801d498e7.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/1658911125147.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/1658916220732.png">
+<meta property="article:published_time" content="2022-07-29T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.597Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/3aae50a131fc4f4faf6f69f4e185a918.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>高效数据同步工具DataX的使用 - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="高效数据同步工具DataX的使用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-29 20:00" pubdate>
+          2022年7月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">高效数据同步工具DataX的使用</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、DataX-简介"><a href="#一、DataX-简介" class="headerlink" title="一、DataX 简介"></a>一、DataX 简介</h1><p>DataX 是阿里云 DataWorks 数据集成 的开源版本，主要就是用于实现数据间的离线同步。 DataX 致力于实现包括关系型数据库（MySQL、Oracle 等）、HDFS、Hive、ODPS、HBase、FTP 等 各种异构数据源（即不同的数据库） 间稳定高效的数据同步功能。<br> <img src="/../blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/3aae50a131fc4f4faf6f69f4e185a918.png" srcset="/img/loading.gif" lazyload> </p>
+<ul>
+<li>为了 <strong>解决异构数据源同步问题，DataX 将复杂的网状同步链路变成了星型数据链路</strong>，DataX 作为中间传输载体负责连接各种数据源；</li>
+<li>当需要接入一个新的数据源时，只需要将此数据源对接到 DataX，便能跟已有的数据源作为无缝数据同步。</li>
+</ul>
+<h2 id="1-DataX-3-0-框架设计"><a href="#1-DataX-3-0-框架设计" class="headerlink" title="1. DataX 3.0 框架设计"></a>1. DataX 3.0 框架设计</h2><p>DataX 采用 Framework + Plugin 架构，将数据源读取和写入抽象称为 Reader&#x2F;Writer 插件，纳入到整个同步框架中。 </p>
+<p> <img src="/../blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/3c7df1cbc3f0482baef9fe451ab690fe.png" srcset="/img/loading.gif" lazyload> </p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reader（采集模块）</td>
+<td>负责采集数据源的数据，将数据发送给 <code>Framework</code></td>
+</tr>
+<tr>
+<td>Writer（写入模块）</td>
+<td>负责不断向 <code>Framework</code> 中取数据，并将数据写入到目的端</td>
+</tr>
+<tr>
+<td>Framework（中间商）</td>
+<td>负责连接 <code>Reader</code> 和 <code>Writer</code>，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题</td>
+</tr>
+</tbody></table>
+<h2 id="2-DataX-3-0-核心架构"><a href="#2-DataX-3-0-核心架构" class="headerlink" title="2. DataX 3.0 核心架构"></a>2. DataX 3.0 核心架构</h2><p>DataX 完成单个数据同步的作业，我们称为 <code>Job</code>，DataX 接收到一个 <code>Job</code> 后，将启动一个进程来完成整个作业同步过程。<strong>DataX Job 模块是单个作业的中枢管理节点，承担了数据清理、子任务切分、TaskGroup 管理等功能</strong>。 </p>
+<p><img src="/../blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/32f6c08c122b42ad82756b3801d498e7.png" srcset="/img/loading.gif" lazyload> </p>
+<ul>
+<li>DataX Job 启动后，会根据不同源端的切分策略，将 <code>Job</code> 切分成多个小的 <code>Task</code> (子任务)，以便于<strong>并发执行</strong>；</li>
+<li>接着 DataX Job 会调用 <code>Scheduler</code> 模块，根据配置的并发数量，将拆分成的 <code>Task</code> 重新组合，组装成 <code>TaskGroup</code>（任务组）；</li>
+<li>每一个 <code>Task</code> 都由 <code>TaskGroup</code> 负责启动，<code>Task</code> 启动后，会固定启动 <code>Reader --&gt; Channel --&gt; Writer</code> 线程来完成任务同步工作；</li>
+<li>DataX 作业运行启动后，Job 会对 <code>TaskGroup</code> <strong>进行监控操作</strong>，等待所有 TaskGroup 完成后，Job 便会成功退出（<strong>异常退出时 值非 0</strong>）</li>
+</ul>
+<h3 id="DataX-调度过程"><a href="#DataX-调度过程" class="headerlink" title="DataX 调度过程"></a>DataX 调度过程</h3><ul>
+<li>首先 DataX Job 模块会根据分库分表切分成若干个 <code>Task</code>，然后根据用户配置并发数，来计算需要分配多少个 <code>TaskGroup</code>；</li>
+<li>计算过程：<code>Task / Channel = TaskGroup</code>，最后由 <code>TaskGroup</code> 根据分配好的并发数来运行 <code>Task</code>（任务）</li>
+</ul>
+<h1 id="二、使用-DataX-实现数据同步"><a href="#二、使用-DataX-实现数据同步" class="headerlink" title="二、使用 DataX 实现数据同步"></a>二、使用 DataX 实现数据同步</h1><blockquote>
+<p>准备环境：</p>
+<ul>
+<li>JDK（<code>1.8</code> 以上，推荐 1.8）</li>
+<li>Python（<code>2.x</code> 版本，CentOS 7 自带python 2.7，若要使用python3需修改  <code>datax/bin</code> 目录下的三个py文件以符合 python3 语法要求）</li>
+<li>Apache Maven 3.x（Compile DataX）（手动打包使用，使用 <code>tar</code> 包方式不需要安装）</li>
+</ul>
+</blockquote>
+<h2 id="1-Linux-上安装-DataX-软件"><a href="#1-Linux-上安装-DataX-软件" class="headerlink" title="1. Linux 上安装 DataX 软件"></a>1. Linux 上安装 DataX 软件</h2><h3 id="安装-DataX"><a href="#安装-DataX" class="headerlink" title="安装 DataX"></a>安装 DataX</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 获取datax软件包</span><br>wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz<br><span class="hljs-comment"># 创建datax目录并解压</span><br><span class="hljs-built_in">mkdir</span> /opt/docker/datax &amp;&amp; <span class="hljs-built_in">mv</span> datax.tar.gz /opt/docker/datax<br><span class="hljs-built_in">cd</span> /opt/docker/datax &amp;&amp; tar zxf datax.tar.gz -C /usr/local/<br><span class="hljs-comment"># 需要删除隐藏文件 (重要)</span><br><span class="hljs-built_in">rm</span> -rf /usr/local/datax/plugin/*/._*<br></code></pre></td></tr></table></figure>
+
+<h3 id="安装JDK-1-8（已安装可忽略）"><a href="#安装JDK-1-8（已安装可忽略）" class="headerlink" title="安装JDK 1.8（已安装可忽略）"></a>安装JDK 1.8（已安装可忽略）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 需先下载 jdk-8u301-linux-x64.tar.gz 并上传至服务器目录</span><br>[root@VM-12-14-centos datax]<span class="hljs-comment"># ls</span><br>datax.tar.gz  jdk-8u301-linux-x64.tar.gz<br>[root@VM-12-14-centos datax]<span class="hljs-comment"># mv jdk1.8.0_301 /usr/local/java</span><br>[root@VM-12-14-centos datax]<span class="hljs-comment"># cat &lt;&lt;END &gt;&gt; /etc/profile</span><br>&gt; <span class="hljs-built_in">export</span> JAVA_HOME=/usr/local/java<br>&gt; <span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$JAVA_HOME</span>/bin<br>&gt; END<br>[root@VM-12-14-centos datax]<span class="hljs-comment"># source /etc/profile</span><br>[root@VM-12-14-centos datax]<span class="hljs-comment"># java -version</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-DataX-基本使用"><a href="#2-DataX-基本使用" class="headerlink" title="2. DataX 基本使用"></a>2. DataX 基本使用</h2><p>查看 DataX 数据同步 <code>json</code> 配置模板及使用说明</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python /usr/local/datax/bin/datax.py -r streamreader -w streamwriter<br></code></pre></td></tr></table></figure>
+
+<p>输出如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs json">DataX (DATAX-OPENSOURCE<span class="hljs-number">-3.0</span>)<span class="hljs-punctuation">,</span> From Alibaba !<br>Copyright (C) <span class="hljs-number">2010</span><span class="hljs-number">-2017</span><span class="hljs-punctuation">,</span> Alibaba Group. All Rights Reserved.<br><br>Please refer to the streamreader document<span class="hljs-punctuation">:</span>     https<span class="hljs-punctuation">:</span><span class="hljs-comment">//github.com/alibaba/DataX/blob/master/streamreader/doc/streamreader.md </span><br><br>Please refer to the streamwriter document<span class="hljs-punctuation">:</span>     https<span class="hljs-punctuation">:</span><span class="hljs-comment">//github.com/alibaba/DataX/blob/master/streamwriter/doc/streamwriter.md </span><br> <br>Please save the following configuration as a json file and  use<br>     python <span class="hljs-punctuation">&#123;</span>DATAX_HOME<span class="hljs-punctuation">&#125;</span>/bin/datax.py <span class="hljs-punctuation">&#123;</span>JSON_FILE_NAME<span class="hljs-punctuation">&#125;</span>.json <br>to run the job.<br><br><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;job&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>            <span class="hljs-punctuation">&#123;</span><br>                <span class="hljs-attr">&quot;reader&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;streamreader&quot;</span><span class="hljs-punctuation">,</span> <br>                    <span class="hljs-attr">&quot;parameter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                        <span class="hljs-attr">&quot;column&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>                        <span class="hljs-attr">&quot;sliceRecordCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><br>                    <span class="hljs-punctuation">&#125;</span><br>                <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span> <br>                <span class="hljs-attr">&quot;writer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;streamwriter&quot;</span><span class="hljs-punctuation">,</span> <br>                    <span class="hljs-attr">&quot;parameter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                        <span class="hljs-attr">&quot;encoding&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><span class="hljs-punctuation">,</span> <br>                        <span class="hljs-attr">&quot;print&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><br>                    <span class="hljs-punctuation">&#125;</span><br>                <span class="hljs-punctuation">&#125;</span><br>            <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>        <span class="hljs-attr">&quot;setting&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;speed&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                <span class="hljs-attr">&quot;channel&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><br>            <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>从上述说明可以看出，使用 DataX 需要两步操作:</p>
+<ul>
+<li>编写同步配置 <code>json</code> </li>
+<li>使用 python 命令执行配置中的 <code>job</code> 任务</li>
+</ul>
+<p>下面将演示同步两个不同 <code>mysql</code> 数据库表的，要实现数据同步，需提前准备：</p>
+<ul>
+<li>数据源数据库</li>
+<li>目标数据库，且已建好需同步的目标表（DataX并不会创建表）</li>
+</ul>
+<h3 id="同步配置样例解析"><a href="#同步配置样例解析" class="headerlink" title="同步配置样例解析"></a>同步配置样例解析</h3><p>这里以同步不同 <code>mysql</code> 数据库举例：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;job&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>            <span class="hljs-punctuation">&#123;</span><br>                <span class="hljs-attr">&quot;reader&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                    <span class="hljs-comment">// 读取端</span><br>                    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mysqlreader&quot;</span><span class="hljs-punctuation">,</span><br>                    <span class="hljs-attr">&quot;parameter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                        <span class="hljs-comment">// 源数据库连接用户</span><br>                        <span class="hljs-attr">&quot;username&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;root&quot;</span><span class="hljs-punctuation">,</span><br>                        <span class="hljs-comment">// 源数据库连接密码</span><br>                        <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;root&quot;</span><span class="hljs-punctuation">,</span><br>                        <span class="hljs-comment">// 需要同步的列 (* 表示所有的列)</span><br>                        <span class="hljs-attr">&quot;column&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;*&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>                        <span class="hljs-attr">&quot;connection&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">&#123;</span><br>                                <span class="hljs-comment">// 源数据库连接</span><br>                                <span class="hljs-attr">&quot;jdbcUrl&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;jdbc:mysql://127.1.2.3:3360/studysource?useUnicode=true&amp;characterEncoding=utf8&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>                                <span class="hljs-comment">// 源表</span><br>                                <span class="hljs-attr">&quot;table&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;staff_info&quot;</span><span class="hljs-punctuation">]</span><br>                        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">]</span><br>                    <span class="hljs-punctuation">&#125;</span><br>                <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span> <br>                <span class="hljs-attr">&quot;writer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                    <span class="hljs-comment">// 写入端</span><br>                    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mysqlwriter&quot;</span><span class="hljs-punctuation">,</span><br>                    <span class="hljs-attr">&quot;parameter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                        <span class="hljs-comment">// 目标数据库连接用户</span><br>                        <span class="hljs-attr">&quot;username&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;root&quot;</span><span class="hljs-punctuation">,</span><br>                        <span class="hljs-comment">// 目标数据库连接密码</span><br>                        <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;root&quot;</span><span class="hljs-punctuation">,</span><br>                        <span class="hljs-attr">&quot;connection&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>                            <span class="hljs-punctuation">&#123;</span><br>                                <span class="hljs-comment">// 目标数据库连接</span><br>                                <span class="hljs-attr">&quot;jdbcUrl&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;jdbc:mysql://127.2.3.4:3360/studysync?useUnicode=true&amp;characterEncoding=utf8&quot;</span><span class="hljs-punctuation">,</span> <br>                                <span class="hljs-comment">// 目标表</span><br>                                <span class="hljs-attr">&quot;table&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;staff_info&quot;</span><span class="hljs-punctuation">]</span><br>                            <span class="hljs-punctuation">&#125;</span><br>                        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>                        <span class="hljs-comment">// 同步前. 要做的事</span><br>                        <span class="hljs-attr">&quot;preSql&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;TRUNCATE TABLE staff_info&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>                        <span class="hljs-comment">// 需要同步的列</span><br>                        <span class="hljs-attr">&quot;column&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;*&quot;</span><span class="hljs-punctuation">]</span> <br>                    <span class="hljs-punctuation">&#125;</span><br>                <span class="hljs-punctuation">&#125;</span><br>            <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <br>        <span class="hljs-attr">&quot;setting&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;speed&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>                <span class="hljs-comment">// 指定并发数</span><br>                <span class="hljs-attr">&quot;channel&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;5&quot;</span><br>            <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>不同的数据库支持配置会有差异，具体解析可参考官方： <a target="_blank" rel="noopener" href="https://github.com/alibaba/DataX">DataX数据源参考指南</a> ，点击对应<code>读</code> 、<code>写</code> 查看对应文档进行配置定制</p>
+<p><img src="/../blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/1658911125147.png" srcset="/img/loading.gif" lazyload alt="1658911125147"></p>
+<h3 id="执行-DataX-同步任务"><a href="#执行-DataX-同步任务" class="headerlink" title="执行 DataX 同步任务"></a>执行 DataX 同步任务</h3><p>配置文件编写好后，在配置文件所在目录下执行以下命令来进行数据同步：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python /usr/local/datax/bin/datax.py user_sync_mysql2mysql.json<br></code></pre></td></tr></table></figure>
+
+<p><img src="/../blog-assets/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8/1658916220732.png" srcset="/img/loading.gif" lazyload alt="1658916220732"></p>
+<p>【注】：若出现 <code>java.sql.SQLException: Could not retrieve transation read-only status server</code> 错误，至以下目录检查数据库驱动版本与数据库是否一致</p>
+<ul>
+<li><code>/usr/local/datax/plugin/writer/mysqlwriter/libs</code></li>
+</ul>
+<h2 id="3-配合-crontab-实现数据定时同步"><a href="#3-配合-crontab-实现数据定时同步" class="headerlink" title="3. 配合 crontab 实现数据定时同步"></a>3. 配合 crontab 实现数据定时同步</h2><blockquote>
+<p>crontab 用法可参考：<a href="/2022/07/28/Linux%E4%B8%AD%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1crontab">Linux中的定时任务crontab</a></p>
+</blockquote>
+<p>首先需确保 <code>crontab</code> 服务已启动（ <code>running</code> 状态）；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@VM-12-14-centos ~]<span class="hljs-comment"># service crond status</span><br>Redirecting to /bin/systemctl status crond.service<br>● crond.service - Command Scheduler<br>   Loaded: loaded (/usr/lib/systemd/system/crond.service; enabled; vendor preset: enabled)<br>   Active: active (running) since Sun 2022-06-05 20:28:49 CST; 1 months 21 days ago<br> Main PID: 1064 (crond)<br>    Tasks: 1<br>   Memory: 1.2M<br>   CGroup: /system.slice/crond.service<br>           └─1064 /usr/sbin/crond -n<br></code></pre></td></tr></table></figure>
+
+<p>编写 DataX 数据同步任务执行的 <code>shell</code> 脚本；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim sync_table.sh<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>nohup</code> 实现后台运行命令（ <code>nohup</code> 命令用法可参考<a href="/2022/06/18/Shell%E8%84%9A%E6%9C%AC%E5%9F%BA%E7%A1%80">Shell脚本基础</a> ），并将任务执行追加输出重定向到指定目录的 <code>log</code> 文件（<code>touch</code> 命令确保<code>log</code> 文件存在）；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>touch /opt/docker/datax/log/staff_info_mysql2mysql.log<br>nohup python /usr/local/datax/bin/datax.py /opt/docker/datax/source_config/staff_info_mysql2mysql.json &gt;&gt; /opt/docker/datax/log/staff_info_mysql2mysql.log 2&gt;&amp;1 &amp;<br></code></pre></td></tr></table></figure>
+
+<p><code>shell</code> 写好后，将脚本执行添加至 <code>crontab</code> ；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">crontab -e<br></code></pre></td></tr></table></figure>
+
+<p>进行如下配置，这里实现的是每天早上 <code>06:30</code> 执行一次脚本完成数据同步；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bahs">30 6 * * * /opt/docker/datax/source_config/sync_table.sh<br></code></pre></td></tr></table></figure>
+
+<p>至此，我们实现了定时数据同步，不仅如此，通过在 <code>shell</code> 脚本中增加同步表的命令我们可以实现在不同时间频度下批量数据同步，例如以下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">30 6 * * * /opt/docker/datax/source_config/sync_table_daily.sh<br>30 4 * * 1 /opt/docker/datax/source_config/sync_table_weekly.sh<br></code></pre></td></tr></table></figure>
+
+<p>这里我定义了一个每天 <code>06:30</code> 执行的数据同步与一个每周一 <code>04:30</code> 执行的数据同步，<code>sync_table_daily.sh</code> 脚本中也可以包含多张表的 <code>DataX</code> 同步任务。</p>
+<h2 id="4-将-DataX-制作成docker镜像"><a href="#4-将-DataX-制作成docker镜像" class="headerlink" title="4. 将 DataX 制作成docker镜像"></a>4. 将 DataX 制作成docker镜像</h2><blockquote>
+<p>需事先准备一个 <code>python2.7+jdk1.8</code> 的docker基础镜像 </p>
+</blockquote>
+<h3 id="4-1-镜像制作"><a href="#4-1-镜像制作" class="headerlink" title="4.1 镜像制作"></a>4.1 镜像制作</h3><p>这里使用一个 <code>centos7 + jdk1.8</code> 的基础镜像，在此镜像基础上安装 DataX ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 通过镜像启动容器并进入容器, mycentos 为要创建的容器名, ae67f82978bc 为镜像ID</span><br>[root@VM-12-14-centos]<span class="hljs-comment"># docker run -it --name mycentos ae67f82978bc</span><br><span class="hljs-comment"># 进入容器后确认java和python环境</span><br>[root@4696780785e2 /]<span class="hljs-comment"># java -version</span><br>openjdk version <span class="hljs-string">&quot;1.8.0_191&quot;</span><br>OpenJDK Runtime Environment (build 1.8.0_191-b12)<br>OpenJDK 64-Bit Server VM (build 25.191-b12, mixed mode)<br>[root@4696780785e2 /]<span class="hljs-comment"># python</span><br>Python 2.7.5 (default, Oct 30 2018, 23:45:53) <br>[GCC 4.8.5 20150623 (Red Hat 4.8.5-36)] on linux2<br></code></pre></td></tr></table></figure>
+
+<p>接下来参考步骤 1 安装 <code>DataX</code> ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 获取datax软件包</span><br>wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz<br><span class="hljs-comment"># 创建datax目录并解压</span><br><span class="hljs-built_in">mkdir</span> /opt/datax &amp;&amp; <span class="hljs-built_in">mv</span> datax.tar.gz /opt/datax<br><span class="hljs-built_in">cd</span> /opt/datax &amp;&amp; tar zxf datax.tar.gz -C /usr/local/<br><span class="hljs-comment"># 需要删除隐藏文件 (重要)</span><br><span class="hljs-built_in">rm</span> -rf /usr/local/datax/plugin/*/._*<br></code></pre></td></tr></table></figure>
+
+<p>安装完成后，创建<code>DataX</code> 配置<code>json</code> 的目录以便之后挂载，创建后退出容器；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@4696780785e2 datax]<span class="hljs-comment"># mkdir sourcetable_conf  </span><br>[root@4696780785e2 datax]<span class="hljs-comment"># exit</span><br></code></pre></td></tr></table></figure>
+
+<p> <code>Commit</code> 创建新的 <code>DataX</code> 基础镜像 <code>mydatax:july</code> ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker commit -m=<span class="hljs-string">&quot;基于jdk1.8和python2.7的datax镜像&quot;</span> 4696780785e2 mydatax:july<br></code></pre></td></tr></table></figure>
+
+<p>使用以下命令挂载服务器 <code>sourcetable_conf</code>到容器<code>/opt/datax/sourcetable_conf</code> 目录，将数据同步<code>json</code> 上传至这个目录，即可在容器中进行利用 DataX 操作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run -d -it -v /opt/docker/datax/sourcetable_conf:/opt/datax/sourcetable_conf --name datax mydatax:july <br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-2-jenkins-调度容器"><a href="#4-2-jenkins-调度容器" class="headerlink" title="4.2 jenkins 调度容器"></a>4.2 jenkins 调度容器</h3><p>待更新</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/mysql/">#mysql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>高效数据同步工具DataX的使用</div>
+      <div>http://dunkingcurry30.github.io/2022/07/29/高效数据同步工具DataX的使用/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月29日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/30/CountDownLatch%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8C%E4%B8%80%E4%BB%BB%E5%8A%A1/" title="CountDownLatch 多线程执行同一任务">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CountDownLatch 多线程执行同一任务</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/28/Linux%E4%B8%AD%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1crontab/" title="Linux中的定时任务crontab">
+                        <span class="hidden-mobile">Linux中的定时任务crontab</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

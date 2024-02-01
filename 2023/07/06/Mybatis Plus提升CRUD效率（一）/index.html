@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、MybatisX 插件MyBatisX插件是IDEA插件，如果想要使用它，那么首先需要在IDEA中进行安装（Markplace搜索安装即可)。  1、插件用途：接口与 mapper.xml 跳转安装插件后，在mapper的接口文件中，会出现红色小鸟标识（如下图），点击即可跳转至对应 mapper.xml 文件的映射方法。  同样，在 mapper.xml 文件中也会出现蓝色小鸟标识（如下图），">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis Plus提升CRUD效率（一）">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2023/07/06/Mybatis%20Plus%E6%8F%90%E5%8D%87CRUD%E6%95%88%E7%8E%87%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、MybatisX 插件MyBatisX插件是IDEA插件，如果想要使用它，那么首先需要在IDEA中进行安装（Markplace搜索安装即可)。  1、插件用途：接口与 mapper.xml 跳转安装插件后，在mapper的接口文件中，会出现红色小鸟标识（如下图），点击即可跳转至对应 mapper.xml 文件的映射方法。  同样，在 mapper.xml 文件中也会出现蓝色小鸟标识（如下图），">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233048370.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233319537.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233427492.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233625098.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233802961.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233899047.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233992315.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234674131.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234851285.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234926792.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234953410.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679236285692.png">
+<meta property="article:published_time" content="2023-07-06T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="CRUD">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233048370.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Mybatis Plus提升CRUD效率（一） - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Mybatis Plus提升CRUD效率（一）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-06 20:00" pubdate>
+          2023年7月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Mybatis Plus提升CRUD效率（一）</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、MybatisX-插件"><a href="#一、MybatisX-插件" class="headerlink" title="一、MybatisX 插件"></a>一、MybatisX 插件</h1><p>MyBatisX插件是<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=IDEA%E6%8F%92%E4%BB%B6&spm=1001.2101.3001.7020">IDEA插件</a>，如果想要使用它，那么首先需要在IDEA中进行安装（Markplace搜索安装即可)。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233048370.png" srcset="/img/loading.gif" lazyload alt="1679233048370"></p>
+<h2 id="1、插件用途：接口与-mapper-xml-跳转"><a href="#1、插件用途：接口与-mapper-xml-跳转" class="headerlink" title="1、插件用途：接口与 mapper.xml 跳转"></a>1、插件用途：接口与 mapper.xml 跳转</h2><p>安装插件后，在mapper的接口文件中，会出现红色小鸟标识（如下图），点击即可跳转至对应 <code>mapper.xml</code> 文件的映射方法。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233319537.png" srcset="/img/loading.gif" lazyload alt="1679233319537"></p>
+<p>同样，在 <code>mapper.xml</code> 文件中也会出现蓝色小鸟标识（如下图），点击即可跳转至对应<code>mapper</code> 接口。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233427492.png" srcset="/img/loading.gif" lazyload alt="1679233427492"></p>
+<h2 id="2、插件进阶用途I：代码快速生成"><a href="#2、插件进阶用途I：代码快速生成" class="headerlink" title="2、插件进阶用途I：代码快速生成"></a>2、插件进阶用途I：代码快速生成</h2><p>首先，需要在IDEA中配置对应的数据库链接：</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233625098.png" srcset="/img/loading.gif" lazyload alt="1679233625098"></p>
+<p>找到需要生成代码的表名，右键选择 <code>Mybatis-X</code> 菜单，</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233802961.png" srcset="/img/loading.gif" lazyload alt="1679233802961"></p>
+<p>接着按以下提示依次填写相应内容，即可在对应目录生成表所对应的 <code>mapper</code> 接口、<code>xml</code> 文件（<code>service</code> 部分建议去掉，实际开发用处不大）。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233899047.png" srcset="/img/loading.gif" lazyload alt="1679233899047"></p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679233992315.png" srcset="/img/loading.gif" lazyload alt="1679233992315"></p>
+<h2 id="3、插件进阶用途II：CRUD快速生成"><a href="#3、插件进阶用途II：CRUD快速生成" class="headerlink" title="3、插件进阶用途II：CRUD快速生成"></a>3、插件进阶用途II：CRUD快速生成</h2><p>在代码生成的 <code>mapper</code> 接口中，不需要写返回值，只需要依据以下语法写方法名：</p>
+<blockquote>
+<p>select、query、get —— 查找<br>update —— 更新<br>delete —— 删除<br>by 条件<br>and 连接条件</p>
+</blockquote>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234674131.png" srcset="/img/loading.gif" lazyload alt="1679234674131"></p>
+<p>接着按下 <code>Alt</code> + <code>Enter</code> ，选择 <code>Generate Mybatis Sql</code> ，</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234851285.png" srcset="/img/loading.gif" lazyload alt="1679234851285"></p>
+<p>即可生成对应方法，以及 <code>xml</code> 文件的语句。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234926792.png" srcset="/img/loading.gif" lazyload alt="1679234926792"></p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679234953410.png" srcset="/img/loading.gif" lazyload alt="1679234953410"></p>
+<h2 id="4、插件进阶用途III：mybatis-plus-的使用"><a href="#4、插件进阶用途III：mybatis-plus-的使用" class="headerlink" title="4、插件进阶用途III：mybatis-plus 的使用"></a>4、插件进阶用途III：mybatis-plus 的使用</h2><p>我们可以结合 <code>mybatis-plus</code> 进一步提高效率，在第二步代码生成的选项中，我们选择了 <code>Mybatis Plus 3</code> 以后，生成的 <code>mapper</code> 接口会继承 <code>BaseMapper</code> 接口，后续在 <code>service</code> 中就能直接调用 <code>mybatis-plus</code> 封装的方法，这其中包括了单表常见的增删改查，针对单表的操作基本可以告别编写 <code>xml</code> 配置。为此，我们还需要引入 <code>mybatis-plus</code> 的依赖，以使 <code>BaseMapper</code> 接口生效：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- Mybatis-plus 依赖  --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.baomidou<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.5.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来，就可以在 <code>service</code> 中直接调用 <code>mapper</code> 封装的 CRUD 接口了。当然，在实际应用中仍然要结合具体情况，复杂单表操作仍建议使用 <code>xml</code> 配置，便于维护。</p>
+<p><img src="/../blog-assets/EasyExcel%E7%94%A8%E6%B3%95/1679236285692.png" srcset="/img/loading.gif" lazyload alt="1679236285692"></p>
+<h1 id="二、Mybatis-Plus"><a href="#二、Mybatis-Plus" class="headerlink" title="二、Mybatis Plus"></a>二、Mybatis Plus</h1><blockquote>
+<ul>
+<li>此处只大致介绍Mybatis Plus，详细应用请移步官方文档</li>
+<li>Mybatis Plus 官方参考文档： <a target="_blank" rel="noopener" href="https://baomidou.com/">MyBatis-Plus (baomidou.com)</a></li>
+</ul>
+</blockquote>
+<h2 id="1-MP-实体类"><a href="#1-MP-实体类" class="headerlink" title="1. MP 实体类"></a>1. MP 实体类</h2><p>使用注解将实体类 T entity与Mybatis Plus（下称MP）封装好的接口配合使用，这里以一个基础实体类 <code>BaseDO</code> 举例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@TableName(&quot;sys_user&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseDO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 主键ID</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;主键ID&quot;)</span><br>    <span class="hljs-meta">@TableId(value = &quot;id&quot;, type = IdType.AUTO)</span><br>    <span class="hljs-keyword">private</span> Long id;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 业务主键</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;业务主键&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;bid&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> Long bid;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 创建时间</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;创建时间&quot;)</span><br>    <span class="hljs-meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;create_at&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> Date createAt;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 创建人</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;创建人&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;create_by&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> String createBy;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 更新时间</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;更新时间&quot;)</span><br>    <span class="hljs-meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;update_at&quot;, fill = FieldFill.INSERT_UPDATE)</span><br>    <span class="hljs-keyword">private</span> Date updateAt;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 更新人</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;更新人&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;update_by&quot;, fill = FieldFill.INSERT_UPDATE)</span><br>    <span class="hljs-keyword">private</span> String updateBy;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 逻辑删除 0-未删除 1-已删除</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;逻辑删除&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;deleted&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-meta">@TableLogic(value = &quot;0&quot;, delval = &quot;1&quot;)</span><br>    <span class="hljs-keyword">private</span> Integer deleted;<br>  <br>    <span class="hljs-meta">@ApiModelProperty(hidden = true)</span><br>    <span class="hljs-meta">@TableField(exist = false)</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">1L</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TableName"><a href="#TableName" class="headerlink" title="@TableName"></a>@TableName</h3><ul>
+<li>描述：表名注解，标识实体类对应的表</li>
+<li>使用位置：实体类</li>
+<li>多数据库需指定库名</li>
+</ul>
+<h3 id="TableId"><a href="#TableId" class="headerlink" title="@TableId"></a>@TableId</h3><ul>
+<li>描述：主键注解</li>
+<li>使用位置：实体类主键字段</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必须指定</th>
+<th align="left">默认值</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">value</td>
+<td align="left">String</td>
+<td align="left">否</td>
+<td align="left">“”</td>
+<td align="left">主键字段名</td>
+</tr>
+<tr>
+<td align="left">type</td>
+<td align="left">Enum</td>
+<td align="left">否</td>
+<td align="left">IdType.NONE</td>
+<td align="left">指定主键类型</td>
+</tr>
+</tbody></table>
+<h4 id="IdType"><a href="#IdType" class="headerlink" title="IdType"></a>IdType</h4><table>
+<thead>
+<tr>
+<th align="left">值</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">AUTO</td>
+<td align="left">数据库 ID 自增</td>
+</tr>
+<tr>
+<td align="left">NONE</td>
+<td align="left">无状态，该类型为未设置主键类型（注解里等于跟随全局，全局里约等于 INPUT）</td>
+</tr>
+<tr>
+<td align="left">INPUT</td>
+<td align="left">insert 前自行 set 主键值</td>
+</tr>
+</tbody></table>
+<h3 id="TableField"><a href="#TableField" class="headerlink" title="@TableField"></a>@TableField</h3><ul>
+<li>描述：字段注解（非主键）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必须指定</th>
+<th align="left">默认值</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">value</td>
+<td align="left">String</td>
+<td align="left">否</td>
+<td align="left">“”</td>
+<td align="left">数据库字段名</td>
+</tr>
+<tr>
+<td align="left">exist</td>
+<td align="left">boolean</td>
+<td align="left">否</td>
+<td align="left">true</td>
+<td align="left">是否为数据库表字段</td>
+</tr>
+<tr>
+<td align="left">condition</td>
+<td align="left">String</td>
+<td align="left">否</td>
+<td align="left">“”</td>
+<td align="left">字段<code>where</code> 实体查询比较条件，有值设置则按设置的值为准，没有则为默认全局的 &#96;%s&#x3D;#</td>
+</tr>
+</tbody></table>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/" class="category-chain-item">Java后端</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CRUD/">#CRUD</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Mybatis Plus提升CRUD效率（一）</div>
+      <div>http://dunkingcurry30.github.io/2023/07/06/Mybatis Plus提升CRUD效率（一）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月6日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/09/Mybatis%20Plus%E6%8F%90%E5%8D%87CRUD%E6%95%88%E7%8E%87%EF%BC%88%E4%BA%8C%EF%BC%89/" title="Mybatis Plus提升CRUD效率（二）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mybatis Plus提升CRUD效率（二）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/03/EasyExcel%E5%AE%9E%E7%8E%B0%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA/" title="EasyExcel 实现导入导出">
+                        <span class="hidden-mobile">EasyExcel 实现导入导出</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

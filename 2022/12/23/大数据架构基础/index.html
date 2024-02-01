@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、大数据架构概述以下面这张架构图为例：     从这张大数据的整体架构图上看来，大数据的核心层应该是：数据采集层、数据存储与分析层、数据共享层、数据应用层，可能叫法有所不同，本质上的角色都大同小异。  经过多年的发展，业界已孕育出了一些较为成熟的架构模式， 如Lambda架构、Kappa架构及Smack架构。 1、Lambda架构 Lambda架构是大数据平台里最成熟、最稳定的架构，它的核心思想">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据架构基础">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2022/12/23/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、大数据架构概述以下面这张架构图为例：     从这张大数据的整体架构图上看来，大数据的核心层应该是：数据采集层、数据存储与分析层、数据共享层、数据应用层，可能叫法有所不同，本质上的角色都大同小异。  经过多年的发展，业界已孕育出了一些较为成熟的架构模式， 如Lambda架构、Kappa架构及Smack架构。 1、Lambda架构 Lambda架构是大数据平台里最成熟、最稳定的架构，它的核心思想">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/c433fdc697dce54bb06e83573dfb6b94.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/20181201163352322.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/37d5e4afb6dcb149c3f372062c5f9312.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/2207166a12a0aaace4d94130ffb491bd.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/76837923d54206da968100b6f0229446.png">
+<meta property="article:published_time" content="2022-12-23T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="系统架构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/c433fdc697dce54bb06e83573dfb6b94.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>大数据架构基础 - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="大数据架构基础"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-23 20:00" pubdate>
+          2022年12月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          41 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">大数据架构基础</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、大数据架构概述"><a href="#一、大数据架构概述" class="headerlink" title="一、大数据架构概述"></a>一、大数据架构概述</h1><p>以下面这张架构图为例：</p>
+<p> <img src="/../blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/c433fdc697dce54bb06e83573dfb6b94.png" srcset="/img/loading.gif" lazyload alt="一张图解释清楚大数据技术架构，堪称阿里的核心机密"> </p>
+<p> 从这张大数据的整体架构图上看来，大数据的核心层应该是：<strong>数据采集层、数据存储与分析层、数据共享层、数据应用层，</strong>可能叫法有所不同，本质上的角色都大同小异。 </p>
+<p>经过多年的发展，业界已孕育出了一些较为成熟的架构模式， 如<code>Lambda</code>架构、<code>Kappa</code>架构及<code>Smack</code>架构。</p>
+<h2 id="1、Lambda架构"><a href="#1、Lambda架构" class="headerlink" title="1、Lambda架构"></a><strong>1、Lambda架构</strong></h2><p> Lambda架构是大数据平台里最成熟、最稳定的架构，它的核心思想是：将批处理作业和实时流处理作业分离，各自独立运行，资源互相隔离。 </p>
+<p>下图是引自网易的猛犸大数据平台<strong>lambda</strong>架构图 </p>
+<p> <img src="/../blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/20181201163352322.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"> </p>
+<p>标准的Lambda架构有如下几个层次：</p>
+<ol>
+<li><p><strong>Batch Layer</strong>：主要负责所有的批处理操作，支撑该层的技术以<code>Hive</code>、<code>Spark-SQL</code>或<code>MapReduce</code>这类批处理技术为主。另外，数据处理依赖的主数据也是在该层维护的。</p>
+</li>
+<li><p><strong>Serving Layer</strong>：以Batch Layer处理的结果数据为基础，对外提供低延时的数据查询和<code>ad-hoc</code>查询（即席查询）服务，Serving Layer可以认为是对Batch Layer数据访问能力上的延伸或增强。因为批处理本身是比较慢的，无法支撑实时的查询请求，从Serving Layer的角度看，Batch Layer的工作本质是一种“预计算”，即预先对大体量数据集进行处理，得到相对较小的结果集，然后由Serving Layer接手，提供实时的数据查询服务。Serving Layer既可以使用包括关系型数据库在内的传统技术，也可以使用<code>Kylin</code>、<code>Doris</code>、<code>Impala</code>或<code>Druid</code>等大数据<code>OLAP</code>产品。</p>
+</li>
+<li><p><strong>Speed Layer</strong>：使用流式计算技术实时处理当前数据。<strong>Speed Layer区别于Batch Layer的地方在于它能以实时或近似实时的方式处理大量的数据</strong>，但是它的局限在于只能处理当前新生成的数据，无法对全部历史数据进行操作，因为流式计算只能针对当前产生的“热数据”进行处理。Speed Layer经常使用<code>Storm</code>、<code>Spark Streaming</code>或<code>Flink</code>等大数据流计算框架。</p>
+</li>
+</ol>
+<p>Lambda架构使用两条数据管道来分别应对批处理和实时处理两种场景，数据因此也有两份冗余，所以Lambda是很健壮的一种架构，但缺点是需要开发团队针对批处理和实时处理分别进行开发，同时维护两套代码，增加了工作量和维护成本。</p>
+<h2 id="2、Kappa架构"><a href="#2、Kappa架构" class="headerlink" title="2、Kappa架构"></a>2、Kappa架构</h2><p>Kappa架构可以认为是对Lambda架构的一种简化，它使用流计算技术来统一批处理和实时处理两条通道,这样，无论从开发和维护的工作量方面，还是从数据存储方面都比Lambda架构节约很多成本。</p>
+<p>Kappa架构在技术选型上往往需要这些组件:<br>消息队列：<code>Kafka</code>&#x2F; <code>Pulsar</code></p>
+<p>流计算框架：<code>Flink</code>&#x2F; <code>Spark Streaming</code>&#x2F;<code>Storm</code></p>
+<p> <img src="/../blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/37d5e4afb6dcb149c3f372062c5f9312.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"> </p>
+<p>完全使用流计算处理所有的数据对开发和数据分析的方方面面都有影响。例如，<strong>在Kappa架构下，所有的数据以流计算的方式处理之后，都将以一种追加的方式写入目标位置，而之前写入的数据也没有机会再被改动，因而变成不可变的</strong>。这种处理模式和Kafka对待数据的方式是完全一致的，本质上都是受流计算这种计算模式的影响。Kappa架构在技术选型上与Lambda架构在Speed Layer上选型是类似的，都以流计算框架为主。</p>
+<h2 id="3、SMACK架构"><a href="#3、SMACK架构" class="headerlink" title="3、SMACK架构"></a>3、SMACK架构</h2><p><strong>SMACK</strong>架构是最近两三年兴起的一种新的架构，S、M、A、C、K分别代表了这个架构使用的5种技术:<code>Spark</code>、<code>Mesos</code>、<code>Akka</code>、<code>Cassandra</code>和<code>Kafka</code>。SMACK成功地融合了批处理和实时处理，但是它的融合方式与Kappa有很大的差别。SMACK架构的成功之处在于它充分而巧妙地利用了选型组件的特性，用一种更加自然和平滑的方式统一了批处理和实时处理。</p>
+<p> <img src="/../blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/2207166a12a0aaace4d94130ffb491bd.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>SMACK架构使用<code>Akka</code>进行数据采集(<code>Akka</code>可以应对高并发和实时性要求很高的场景，非常适合<code>IOT</code>领域)，然后将数据写入<code>Kafka</code>,接着使用<code>Spark Streaming</code>进行实时流处理，处理的结果和原始数据都写入<code>Cassandra</code>。到这里，所有的做法和Kappa架构是一样的。不同于Kappa架构的地方在于，SMACK架构依然保留了批处理能力，它巧妙地利用了Cassandra的多数据中心(<code>Multiple Datacenters</code>)特性将数据透明地冗余到两个<code>Cassandra</code>集群（集群1用来接收流处理结果，集群2用于批处理分析，供<code>Spark</code>(<code>Spark Core</code>或<code>Spark SQL</code>)读写。</p>
+<p>SMACK架构之所以可行，关键是利用了相关产品的特性保证了以下重要的三点:</p>
+<ol>
+<li>利用Cassandra的多数据中心机制透明地实现数据冗余，为实时处理和批处理配置专门<br>的存储资源，互不影响;</li>
+<li>利用<code>Spark-Cassandra</code>连接器的“本地数据感知”能力，在批处理时让Spark尽量读取<br>Cassandra上本地节点的数据，避免数据的网际传输;</li>
+<li>利用<code>Mesos</code>的<code>Marathon</code>和<code>Chronos</code>来配合流式作业和批处理作业。</li>
+</ol>
+<p>SMACK架构既支持批处理又支持实时处理，在数据处理层面只依赖Spark,在数据存储层面只依赖Cassandra,很好地统一了技术堆栈。</p>
+<h1 id="二、数据采集"><a href="#二、数据采集" class="headerlink" title="二、数据采集"></a>二、数据采集</h1><p>数据采集的任务就是把数据从各种数据源中采集和存储到数据存储上，在这期间可能会做一些简单的数据清洗（即<strong>ETL</strong>，将数据从来源端经过抽取<code>extract</code> 、转换<code>transform</code> 、加载<code>load</code> 至目的端的过程）。</p>
+<h2 id="数据源的种类"><a href="#数据源的种类" class="headerlink" title="数据源的种类"></a>数据源的种类</h2><ul>
+<li><strong>网站日志</strong>：互联网行业，网站日志占的份额最大，网站日志存储在多台网站日志服务器上，一般是在每台网站日志服务器上部署 <code>flume agent</code> ，实时地收集网站日志并存储到<code>HDFS</code>上；</li>
+<li><strong>业务数据库</strong>：存在多种多样的业务数据库，例如 <code>mysql</code>, <code>oracle</code>,<code>sqlserver</code> 等，这时候我们迫切需要一种能从各类数据库将数据同步到<code>HDFS</code> 的工具， <code>Sqoop</code>是一种，但是<code>Sqoop</code>太过繁重，而且不管数据量大小，都需要启动<code>MapReduce</code>来执行，而且需要<code>Hadoop</code>集群的每台机器都能访问业务数据库；应对此场景，<code>DataX</code>是一个很好的解决方案，有资源的话，可以基于<code>DataX</code>之上做二次开发，就能非常好的解决 。当然<code>Flume</code> 通过配置于开发，也可以实时的从数据库中同步数据到<code>HDFS</code> ；</li>
+<li>来自于 <code>FTP/HTTP</code> 的数据源：可能一些合作方提供数据，需要提供 <code>FTP/HTTP</code>的方式定时获取，该类型数据仍然可以使用 <code>DataX</code> 进行数据同步；</li>
+</ul>
+<blockquote>
+<p><code>DataX</code> 的具体使用可参考站内文章：<a href="/2022/07/29/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8">高效数据同步工具 DataX 的使用</a> </p>
+</blockquote>
+<ul>
+<li>其他数据源：比如一些手工录入的数据，只需要提供一个接口或者小程序入口，即可完成。</li>
+</ul>
+<h1 id="三、数据存储与分析"><a href="#三、数据存储与分析" class="headerlink" title="三、数据存储与分析"></a>三、数据存储与分析</h1><p> 毋庸置疑，<code>HDFS</code>是大数据环境下数据仓库&#x2F;数据平台最完美的数据存储解决方案。 </p>
+<p>离线数据分析与计算，也就是对实时性要求不高的部分，在笔者看来，<code>Hive</code>还是首要的选择，丰富的数据类型、内置函数；压缩比非常高的<code>ORC</code>文件存储格式；非常方便的<code>SQL</code>支持，使得<code>Hive</code>在基于结构化数据上的统计分析远远比<code>MapReduce</code>要高效的多，一句<code>SQL</code>可以完成的需求，开发<code>MR</code>可能需要上百行代码；</p>
+<p> <img src="/../blog-assets/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/76837923d54206da968100b6f0229446.png" srcset="/img/loading.gif" lazyload alt="一张图解释清楚大数据技术架构，堪称阿里的核心机密"> </p>
+<p> <code>Spark</code>是这两年非常火的，经过实践，它的性能的确比<code>MapReduce</code>要好很多，而且和<code>Hive</code>、<code>Yarn</code>结合的越来越好，因此，必须支持使用<code>Spark</code>和<code>SparkSQL</code>来做分析和计算。因为已经有<code>Hadoop Yarn</code>，使用<code>Spark</code>其实是非常容易的，不用单独部署<code>Spark</code>集群；</p>
+<p>上图中涉及的分析型分布式数据库MPP，业内主流为<code>Doris</code>，后续会详细讲述，此处暂且按下不表。</p>
+<h1 id="四、数据共享"><a href="#四、数据共享" class="headerlink" title="四、数据共享"></a>四、数据共享</h1><p> 这里的数据共享，其实指的是前面数据分析与计算后的结果存放的地方，其实就是关系型数据库和NOSQL数据库。 </p>
+<p>前面使用<code>Hive</code>、<code>MR</code>、<code>Spark</code>、<code>SparkSQL</code>分析和计算的结果，还是在<code>HDFS</code>上，但大多业务和应用不可能直接从<code>HDFS</code>上获取数据，那么就需要一个数据共享的地方，使得各业务和产品能方便的获取数据；和数据采集层到<code>HDFS</code>刚好相反，这里需要一个从<code>HDFS</code>将数据同步至其他目标数据源的工具，同样，<code>DataX</code>也可以满足。</p>
+<p>另外，一些实时计算的结果数据可能由实时计算模块直接写入数据共享。</p>
+<h1 id="五、数据应用"><a href="#五、数据应用" class="headerlink" title="五、数据应用"></a>五、数据应用</h1><ul>
+<li>业务产品（CRM、ERP等）</li>
+</ul>
+<p>业务产品所使用的数据，已经存在于数据共享层，直接从数据共享层访问即可；</p>
+<ul>
+<li>报表（FineReport、业务报表）</li>
+</ul>
+<p>同业务产品，报表所使用的数据，一般也是已经统计汇总好的，存放于数据共享层；</p>
+<ul>
+<li>即席查询</li>
+</ul>
+<p>即席查询的用户有很多，有可能是数据开发人员、网站和产品运营人员、数据分析人员、甚至是部门老大，他们都有即席查询数据的需求； </p>
+<p>这种即席查询通常是现有的报表和数据共享层的数据并不能满足他们的需求，需要从数据存储层直接查询。</p>
+<p>即席查询一般是通过<code>SQL</code>完成，最大的难度在于响应速度上，使用Hive有点慢，可以用<code>SparkSQL</code>，它的响应速度较<code>Hive</code>快很多，而且能很好的与<code>Hive</code>兼容；</p>
+<ul>
+<li>OLAP</li>
+</ul>
+<p>目前，很多的<code>OLAP</code>工具不能很好的支持从<code>HDFS</code>上直接获取数据，都是通过将需要的数据同步到关系型数据库中做<code>OLAP</code>，但如果数据量巨大的话，关系型数据库显然不行；</p>
+<p> <code>Apache Doris</code> 是一个基于 <code>MPP</code> 架构的高性能、实时的分析型数据库，以极速易用的特点被人们所熟知，仅需亚秒级响应时间即可返回海量数据下的查询结果，不仅可以支持高并发的点查询场景，也能支持高吞吐的复杂分析场景。基于此，<code>Apache Doris</code> 能够较好的满足报表分析、即席查询、统一数仓构建、数据湖联邦查询加速等使用场景，用户可以在此之上构建用户行为分析、AB 实验平台、日志检索分析、用户画像分析、订单分析等应用。</p>
+<h1 id="六、实时计算"><a href="#六、实时计算" class="headerlink" title="六、实时计算"></a>六、实时计算</h1><p>现在业务对数据仓库实时性的需求越来越多，比如：实时的了解网站的整体流量；实时的获取一个广告的曝光和点击；在海量数据下，依靠传统数据库和传统实现方法基本完成不了，需要的是一种分布式的、高吞吐量的、延时低的、高可靠的实时计算框架；Storm在这块是比较成熟了，当然也可以使用Spark Streaming，少引入一个框架到平台中，另外，Spark Streaming比Storm延时性高那么一点点。</p>
+<h1 id="七、任务调度与监控"><a href="#七、任务调度与监控" class="headerlink" title="七、任务调度与监控"></a>七、任务调度与监控</h1><p>在数据仓库&#x2F;数据平台中，有各种各样非常多的程序和任务，比如：数据采集任务、数据同步任务、数据分析任务等； </p>
+<p>这些任务除了定时调度，还存在非常复杂的任务依赖关系，比如：数据分析任务必须等相应的数据采集任务完成后才能开始；数据同步任务需要等数据分析任务完成后才能开始； </p>
+<p> 这就需要一个非常完善的任务调度与监控系统，它作为数据仓库&#x2F;数据平台的中枢，负责调度和监控所有任务的分配与运行，目前主流的任务调度框架有：</p>
+<ul>
+<li><strong>XXL-JOB</strong>: XXL-JOB 是一个轻量级分布式任务调度框架，支持通过 Web 页面对任务进行 CRUD 操作，支持动态修改任务状态、暂停&#x2F;恢复任务，以及终止运行中任务，支持在线配置调度任务入参和在线查看调度结果。</li>
+<li><strong>Azkaban</strong>：Azkaban是由Linkedin公司推出的一个批量工作流任务调度器，主要用于在一个工作流内以一个特定的顺序运行一组工作和流程。官网：<a target="_blank" rel="noopener" href="https://azkaban.github.io/">https://azkaban.github.io/</a></li>
+<li><strong>Elastic Job</strong>：Elastic-Job 是一个分布式调度解决方案，由两个相互独立的子项目 Elastic-Job-Lite 和 Elastic-Job-Cloud 组成。定位为轻量级无中心化解决方案，使用 jar 包的形式提供分布式任务的协调服务。支持分布式调度协调、弹性扩容缩容、失效转移、错过执行作业重触发、并行调度、自诊断和修复等等功能特性。官网：<a target="_blank" rel="noopener" href="http://elasticjob.io/">http://elasticjob.io/</a></li>
+<li><strong>Apache Oozie</strong>：Oozie 是一个工作流调度系统，用来管理 Hadoop 任务。官网：<a target="_blank" rel="noopener" href="http://oozie.apache.org/">http://oozie.apache.org/</a></li>
+</ul>
+<blockquote>
+<p><code>XXL-JOB</code> 的具体使用可参考站内文章：<a href="/2022/08/24/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E6%A1%86%E6%9E%B6XXL-JOB">分布式任务调度框架XXL-JOB的使用</a></p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/mysql/" class="category-chain-item">mysql</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/mysql/hadoop/" class="category-chain-item">hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/mysql/hadoop/spark/" class="category-chain-item">spark</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/">#系统架构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>大数据架构基础</div>
+      <div>http://dunkingcurry30.github.io/2022/12/23/大数据架构基础/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/03/EasyExcel%E5%AE%9E%E7%8E%B0%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA/" title="EasyExcel 实现导入导出">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">EasyExcel 实现导入导出</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/25/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" title="高并发解决方案——负载均衡">
+                        <span class="hidden-mobile">高并发解决方案——负载均衡</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

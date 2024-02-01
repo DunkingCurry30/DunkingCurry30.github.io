@@ -1,0 +1,873 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="PrepareStatement 基本用法1. 加载驱动首先在pom.xml 中引入 mysql 依赖 12345&lt;dependency&gt;    &lt;groupId&gt;mysql&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;mysql-connector-java&lt;&#x2F;artifactId&gt;    &lt;version&gt;8.0.2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PrepareStatement用法（附源码解析）">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2022/07/01/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="PrepareStatement 基本用法1. 加载驱动首先在pom.xml 中引入 mysql 依赖 12345&lt;dependency&gt;    &lt;groupId&gt;mysql&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;mysql-connector-java&lt;&#x2F;artifactId&gt;    &lt;version&gt;8.0.2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657001587671.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657003187392.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657007813550.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657016997387.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657017738145.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657017977804.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657018291198.png">
+<meta property="article:published_time" content="2022-07-01T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657001587671.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>PrepareStatement用法（附源码解析） - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PrepareStatement用法（附源码解析）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-01 20:00" pubdate>
+          2022年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PrepareStatement用法（附源码解析）</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="PrepareStatement-基本用法"><a href="#PrepareStatement-基本用法" class="headerlink" title="PrepareStatement 基本用法"></a>PrepareStatement 基本用法</h1><h2 id="1-加载驱动"><a href="#1-加载驱动" class="headerlink" title="1. 加载驱动"></a>1. 加载驱动</h2><p>首先在<code>pom.xml</code> 中引入 <code>mysql</code> 依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>mysql<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mysql-connector-java<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>8.0.23<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>通过以下代码加载驱动</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Class.forName(<span class="hljs-string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-获取-Connection-对象"><a href="#2-获取-Connection-对象" class="headerlink" title="2. 获取 Connection 对象"></a>2. 获取 Connection 对象</h2><p>数据库连接需要数据库链接、用户名、密码三个参数，建议配置在<code>application.properties</code> 中，方便统一管理（当然也可以直接在使用的地方用字符串变量）</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment">#PrepareStatement</span><br><span class="hljs-comment">#数据库链接</span><br><span class="hljs-attr">pstmt.dbUrl</span>=<span class="hljs-string">&quot;jdbc:mysql://localhost:3306/mydb?serverTimezone=UTC&amp;characterEncoding=utf8&amp;useUnicode=true&quot;</span><br><span class="hljs-comment">#用户名</span><br><span class="hljs-attr">pstmt.dbUser</span>=<span class="hljs-string">root</span><br><span class="hljs-comment">#密码</span><br><span class="hljs-attr">pstmt.dbPwd</span>=<span class="hljs-string">123456</span><br></code></pre></td></tr></table></figure>
+
+<p>通过以下代码获取connection</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Connection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> DriverManager.getConnection(dbUrl,dbUser,dbPwd);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-获取-PrepareStatement-对象"><a href="#3-获取-PrepareStatement-对象" class="headerlink" title="3. 获取 PrepareStatement 对象"></a>3. 获取 PrepareStatement 对象</h2><p>根据需求创建Sql语句字符串，在需要加入参数的地方用 <code>?</code> 占位符代替</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//查询符合指定年龄和性别的员工姓名</span><br><span class="hljs-type">String</span> <span class="hljs-variable">sql</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;SELECT a.name FROM staff_info a WHERE a.age = ? and a.sex = ?&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>接下来，创建 <code>PrepareStatement</code>对象对sql进行预编译</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">PreparedStatement</span> <span class="hljs-variable">pstmt</span> <span class="hljs-operator">=</span> connection.prepareStatement(sql);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-设置参数"><a href="#4-设置参数" class="headerlink" title="4. 设置参数"></a>4. 设置参数</h2><p><code>PrepareStatement</code>对象提供多种参数类型方法，<strong>使用时依据数据库字段类型一一对应</strong>，设置时需注意第一个参数为占位符<code>?</code> 的索引且<strong>从 1 开始</strong>，例如之前sql的设置应为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">pstmt.setInt(<span class="hljs-number">1</span>,<span class="hljs-number">35</span>);<br>pstmt.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;男&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-SQL执行"><a href="#5-SQL执行" class="headerlink" title="5. SQL执行"></a>5. SQL执行</h2><h3 id="单条语句执行"><a href="#单条语句执行" class="headerlink" title="单条语句执行"></a>单条语句执行</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//单次查询</span><br>pstmt.executeQuery();<br><span class="hljs-comment">//单次更新</span><br>pstmt.executeUpdate();<br></code></pre></td></tr></table></figure>
+
+<h3 id="批量执行"><a href="#批量执行" class="headerlink" title="批量执行"></a>批量执行</h3><p>若一次要插入大量数据，应尽量减少jdbc的调用次数，使用批量执行来优化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//第一批</span><br>pstmt.setInt(<span class="hljs-number">1</span>,<span class="hljs-number">35</span>);<br>pstmt.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;男&quot;</span>);<br><span class="hljs-comment">//加入批次</span><br>pstmt.addBatch();<br><br><span class="hljs-comment">//第二批</span><br>pstmt.setInt(<span class="hljs-number">1</span>,<span class="hljs-number">24</span>);<br>pstmt.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;女&quot;</span>);<br>pstmt.addBatch();<br><br><span class="hljs-comment">//统一批量执行</span><br>pstmt.executeBatch();<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-完整示例"><a href="#6-完整示例" class="headerlink" title="6. 完整示例"></a>6. 完整示例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PrepareStatementUtils</span> &#123;<br>    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> <span class="hljs-type">Logger</span> <span class="hljs-variable">LOGGER</span> <span class="hljs-operator">=</span> LoggerFactory.getLogger(PrepareStatementUtils.class);<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;pstmt.dbUrl&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span>  String dbUrl;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;pstmt.dbUser&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span>  String dbUser;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;pstmt.dbPwd&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span>  String dbPwd;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">prepareStatementExecute</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">//加载 mysql 驱动</span><br>            Class.forName(<span class="hljs-string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>);<br>            <span class="hljs-comment">//获取链接</span><br>            <span class="hljs-type">Connection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> DriverManager.getConnection(dbUrl,dbUser,dbPwd);<br>            <span class="hljs-comment">//获取preparestatement对象</span><br>            <span class="hljs-type">String</span> <span class="hljs-variable">sql</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;SELECT a.name FROM staff_info a WHERE a.age = ? and a.sex = ?&quot;</span>;<br>            <span class="hljs-type">PreparedStatement</span> <span class="hljs-variable">pstmt</span> <span class="hljs-operator">=</span> connection.prepareStatement(sql);<br><br>            <span class="hljs-comment">//单次执行</span><br>            pstmt.setInt(<span class="hljs-number">1</span>,<span class="hljs-number">35</span>);<br>            pstmt.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;男&quot;</span>);<br>            <span class="hljs-type">ResultSet</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> pstmt.executeQuery();<br><br>            <span class="hljs-comment">//批量执行</span><br>            <span class="hljs-type">String</span> <span class="hljs-variable">sql2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;insert into staff_info(staff_id,staff_name,staff_age,staff_sex) values(?,?,?,?)&quot;</span>;<br>            <span class="hljs-type">PreparedStatement</span> <span class="hljs-variable">pstmt1</span> <span class="hljs-operator">=</span> connection.prepareStatement(sql2);<br>            <span class="hljs-comment">//第一批</span><br>            pstmt1.setString(<span class="hljs-number">1</span>,<span class="hljs-string">&quot;001&quot;</span>);<br>            pstmt1.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;小谭&quot;</span>);<br>            pstmt1.setInt(<span class="hljs-number">3</span>,<span class="hljs-number">35</span>);<br>            pstmt1.setString(<span class="hljs-number">4</span>,<span class="hljs-string">&quot;男&quot;</span>);<br>            <span class="hljs-comment">//加入批次</span><br>            pstmt1.addBatch();<br><br>            <span class="hljs-comment">//第二批</span><br>            pstmt1.setString(<span class="hljs-number">1</span>,<span class="hljs-string">&quot;002&quot;</span>);<br>            pstmt1.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;小高&quot;</span>);<br>            pstmt1.setInt(<span class="hljs-number">3</span>,<span class="hljs-number">24</span>);<br>            pstmt1.setString(<span class="hljs-number">4</span>,<span class="hljs-string">&quot;女&quot;</span>);<br>            pstmt1.addBatch();<br><br>            <span class="hljs-comment">//统一执行</span><br>            pstmt1.executeBatch();<br><br>        &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException | SQLException e) &#123;<br>            LOGGER.error(e.getMessage());<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="SQL注入攻击（附源码解析）"><a href="#SQL注入攻击（附源码解析）" class="headerlink" title="SQL注入攻击（附源码解析）"></a>SQL注入攻击（附源码解析）</h1><blockquote>
+<p><code>SQL注入攻击</code>：  通过将恶意的 Sql 查询或添加语句插入到应用的输入参数中，再在后台 Sql 服务器上解析执行进行的攻击，它是目前黑客对数据库进行攻击的最常用手段之一。 </p>
+</blockquote>
+<h2 id="1-Statement-发生-SQL-注入的情况"><a href="#1-Statement-发生-SQL-注入的情况" class="headerlink" title="1. Statement 发生 SQL 注入的情况"></a>1. Statement 发生 SQL 注入的情况</h2><p>现存在以下语句查询指定年龄的职工信息，其中age为入参</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">sql</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;SELECT * FROM staff_info a WHERE a.staff_age =&quot;</span>+age;<br><span class="hljs-type">ResultSet</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> statement.executeQuery(sql);<br></code></pre></td></tr></table></figure>
+
+<p>若age值为<code>24 or 1=1</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">age</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;24 or 1=1&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>最后的拼接语句为</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> staff_info a <span class="hljs-keyword">WHERE</span> a.staff_age <span class="hljs-operator">=</span> <span class="hljs-number">36</span> <span class="hljs-keyword">OR</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p>会返回该表的所有职工信息；常见的SQL注入还存在于恶意删表，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">age</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;24; drop table staff_info&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>该语句会删除职工信息表，造成严重后果，因此防止SQL注入是必备操作。</p>
+<h2 id="2-PrepareStatement-防止SQL注入源码解析"><a href="#2-PrepareStatement-防止SQL注入源码解析" class="headerlink" title="2. PrepareStatement 防止SQL注入源码解析"></a>2. PrepareStatement 防止SQL注入源码解析</h2><p>同样存在以下语句查询指定年龄和性别的职工信息，其中age和sex为入参</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">sql</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;SELECT * FROM staff_info a WHERE a.staff_age = ? and a.staff_sex = ?&quot;</span>;<br><span class="hljs-type">PreparedStatement</span> <span class="hljs-variable">pstmt</span> <span class="hljs-operator">=</span> connection.prepareStatement(sql);<br></code></pre></td></tr></table></figure>
+
+<p>同样以SQL注入的形式设置sex参数为 <code>male&#39; or 1=&#39;1</code> ，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">pstmt.setInt(<span class="hljs-number">1</span>,<span class="hljs-number">36</span>); <br>pstmt.setString(<span class="hljs-number">2</span>,<span class="hljs-string">&quot;male&#x27; or 1=&#x27;1&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>打印一下看看PrepareStatement预编译的语句，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">System.out.println(pstmt);<br></code></pre></td></tr></table></figure>
+
+<p>从以下结果可知，PrepareStatement会在占位符的两侧加上 <code>&#39;</code> ，但你可能已经发现到目前为止预编译拼接的sql仍然是存在SQL注入风险的sql，若被直接执行，也会返回表的全部信息，别着急，我们接着看；</p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657001587671.png" srcset="/img/loading.gif" lazyload alt="1657001587671"></p>
+<p>接下来执行SQL；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ResultSet</span> <span class="hljs-variable">rspre</span> <span class="hljs-operator">=</span> pstmt.executeQuery();<br></code></pre></td></tr></table></figure>
+
+<p>通过 debug 进入 <code>com.mysql.cj.jdbc.ClientPreparedStatement</code> 的 <code>executeQuery()</code>方法</p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657003187392.png" srcset="/img/loading.gif" lazyload alt="1657003187392"></p>
+<p>可以看出，在 <code>fillSendPacket()</code> 方法将sql转换为字节的过程中，给占位符中包含的单引号<code>&#39;</code>，额外加上一个单引号 <code>&#39;</code> ，最后执行的sql就变为了：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> staff_info a <span class="hljs-keyword">WHERE</span> a.staff_age <span class="hljs-operator">=</span>  <span class="hljs-number">36</span> <span class="hljs-keyword">and</span> a.staff_sex <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;male&#x27;&#x27; or 1=&#x27;&#x27;1&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>该查询返回信息为空，避免了SQL注入；接下来我们继续debug，到底是哪个操作加上了单引号<code>&#39;</code>：</p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657007813550.png" srcset="/img/loading.gif" lazyload alt="1657007813550"></p>
+<p>找到 <code>buligComQuery()</code>方法，有如下代码，其中：</p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657016997387.png" srcset="/img/loading.gif" lazyload alt="1657016997387"></p>
+<ol>
+<li><code>staticSqlStrings[]</code> ：存储的是以占位符<code>?</code> 划分开的sql语句转换的字节数组，不包含参数，即</li>
+</ol>
+<ul>
+<li><code>staticSqlStrings[0]</code>&#x3D; <code>SELECT * FROM staff_info a WHERE a.staff_age =</code></li>
+<li><code>staticSqlStrings[1]</code> &#x3D; <code>and a.staff_sex =</code></li>
+</ul>
+<ol start="2">
+<li><code>bindValues[]</code> ：绑定的参数数组</li>
+</ol>
+<p>从以上源码可以看出，sql语句和参数共同组装成 <code>sendPacket</code> 发给远程数据库做执行，而防SQL注入的处理，肯定就在 <code>writeAsText()</code> 流程中；</p>
+<p>我们继续往下，来到 <code>com.mysql.cj.protocol.a.StringValueEncoder</code> 类中，该类用于处理String参数，于是可以定位到在将参数转换为字节数组的 <code>getBytes()</code> 方法中对输入的字符串进行了 <code>StringUtils.escapeString()</code> 处理： <img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657017738145.png" srcset="/img/loading.gif" lazyload alt="1657017738145"></p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657017977804.png" srcset="/img/loading.gif" lazyload alt="1657017977804"></p>
+<p>既然已经发现字符串的工具类调用，不出意外我们马上就要找到答案了</p>
+<p><img src="/../blog-assets/PrepareStatement%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3/1657018291198.png" srcset="/img/loading.gif" lazyload alt="1657018291198"></p>
+<p>果然，功夫不负有心人，我们终于找到了它。</p>
+<p>可以看到方法中对各类特殊字符都做了转义处理，常规的添加斜杠 <code>\</code> 如换行符<code>\n</code> ；而我们这里涉及的单引号 <code>&#39;</code> ，转义时会再添加一个 <code>&#39;</code>， 这也解释了上述最终执行sql 的生成。</p>
+<p>Ps：最近干活用到PrepareStatement，网上提到的PrepareStatement源码解析多为老驱动（做法为添加斜杠<code>\</code> ），实际使用时发现转义后其实添加的是单引号<code>&#39;</code>  ，正好就顺道学习下源码，也借此回顾一下SQL注入。</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/" class="category-chain-item">Java后端</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/java/">#java</a>
+      
+        <a href="/tags/mysql/">#mysql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PrepareStatement用法（附源码解析）</div>
+      <div>http://dunkingcurry30.github.io/2022/07/01/PrepareStatement用法详解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/02/Gitlab%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E8%BF%87%E9%AB%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="GitLab内存占用过高解决方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GitLab内存占用过高解决方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/22/CSS%E5%9F%BA%E7%A1%80/" title="CSS 基础">
+                        <span class="hidden-mobile">CSS 基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

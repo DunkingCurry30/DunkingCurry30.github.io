@@ -1,0 +1,848 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言本文将阐述一种纯Java后端实现按模板自动化生成PDF的方法，适用于周期性报表、数据分析报告生成等场景。 方案设计 Demo示例 一、使用FreeMarker按模板生成HTML拿到需求方提供的模板文件后，我们首先需要将模板转换为 Free Marker 能够识别的FTL模板。 1.1 什么是 FreeMarkerFreeMarker是一款模板引擎： 即一种基于模板和要改变的数据， 并用来生成输">
+<meta property="og:type" content="article">
+<meta property="og:title" content="按模板自动化生成PDF">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2023/08/01/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="前言本文将阐述一种纯Java后端实现按模板自动化生成PDF的方法，适用于周期性报表、数据分析报告生成等场景。 方案设计 Demo示例 一、使用FreeMarker按模板生成HTML拿到需求方提供的模板文件后，我们首先需要将模板转换为 Free Marker 能够识别的FTL模板。 1.1 什么是 FreeMarkerFreeMarker是一款模板引擎： 即一种基于模板和要改变的数据， 并用来生成输">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/%E6%8C%89%E6%A8%A1%E6%9D%BF%E8%87%AA%E5%8A%A8%E5%8C%96%E7%94%9F%E6%88%90pdf.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/demo.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/1693726933835.png">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/aHR0cDovL3N0YXRpYy5vc2NoaW5hLm5ldC91cGxvYWRzL3NwYWNlLzIwMTQvMDYxMS8xNzUxMTlfcVJvMF84NTUwMTkucG5n.png">
+<meta property="article:published_time" content="2023-08-01T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="css">
+<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/%E6%8C%89%E6%A8%A1%E6%9D%BF%E8%87%AA%E5%8A%A8%E5%8C%96%E7%94%9F%E6%88%90pdf.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>按模板自动化生成PDF - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="按模板自动化生成PDF"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-01 20:00" pubdate>
+          2023年8月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          30k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          249 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">按模板自动化生成PDF</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文将阐述一种纯Java后端实现<strong>按模板自动化生成</strong><code>PDF</code>的方法，适用于<strong>周期性报表</strong>、<strong>数据分析报告</strong>生成等场景。</p>
+<h2 id="方案设计"><a href="#方案设计" class="headerlink" title="方案设计"></a>方案设计</h2><p><img src="/../blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/%E6%8C%89%E6%A8%A1%E6%9D%BF%E8%87%AA%E5%8A%A8%E5%8C%96%E7%94%9F%E6%88%90pdf.png" srcset="/img/loading.gif" lazyload alt="按模板自动化生成pdf"></p>
+<h2 id="Demo示例"><a href="#Demo示例" class="headerlink" title="Demo示例"></a>Demo示例</h2><p><img src="/../blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/demo.png" srcset="/img/loading.gif" lazyload alt="demo"></p>
+<h1 id="一、使用FreeMarker按模板生成HTML"><a href="#一、使用FreeMarker按模板生成HTML" class="headerlink" title="一、使用FreeMarker按模板生成HTML"></a>一、使用FreeMarker按模板生成HTML</h1><p>拿到需求方提供的模板文件后，我们首先需要将模板转换为 <code>Free Marker</code> 能够识别的<code>FTL</code>模板。</p>
+<h2 id="1-1-什么是-FreeMarker"><a href="#1-1-什么是-FreeMarker" class="headerlink" title="1.1 什么是 FreeMarker"></a>1.1 什么是 <code>FreeMarker</code></h2><p><code>FreeMarker</code>是一款模板引擎： 即一种基于模板和要改变的数据， 并用来生成输出文本(HTML网页，电子邮件，配置文件，源代码等)的通用工具。 是一个Java类库。</p>
+<blockquote>
+<p>详细概述及语法请参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44454512/article/details/109877418?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522169189879016800186523127%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=169189879016800186523127&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-109877418-null-null.142%5Ev92%5Ekoosearch_v1&utm_term=FreeMarker&spm=1018.2226.3001.4187">FreeMarker详细介绍</a></p>
+</blockquote>
+<h2 id="1-2-依赖引入"><a href="#1-2-依赖引入" class="headerlink" title="1.2 依赖引入"></a>1.2 依赖引入</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- free marker 模板--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.freemarker<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>freemarker<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-模板文件准备"><a href="#1-3-模板文件准备" class="headerlink" title="1.3 模板文件准备"></a>1.3 模板文件准备</h2><blockquote>
+<p>该流程需读者掌握<code>HTML</code>、<code>CSS</code>及<code>FTL</code>的基础知识</p>
+</blockquote>
+<p>在该步骤中， 需将模板源文件（<code>WORD</code>，<code>PDF</code>等格式）依据<code>FreeMarker</code>语法转换为<code>FTL</code>模板前置<code>HTML</code>格式，示例模板 <code>cover.ftl</code> 如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css"></span><br><span class="language-css">        * &#123;</span><br><span class="language-css">            <span class="hljs-attribute">margin</span>: <span class="hljs-number">0</span>;</span><br><span class="language-css">            <span class="hljs-attribute">padding</span>: <span class="hljs-number">0</span>;</span><br><span class="language-css">            <span class="hljs-attribute">box-sizing</span>: border-box;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">body</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">font-family</span>: SimSun, fangsong;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">section</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">display</span>: block;</span><br><span class="language-css">            <span class="hljs-attribute">margin</span>: <span class="hljs-number">20px</span> <span class="hljs-number">10px</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-class">.title</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">text-align</span>: center;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">p</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">line-height</span>: <span class="hljs-number">30px</span>;</span><br><span class="language-css">            <span class="hljs-attribute">text-indent</span>: <span class="hljs-number">2em</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">section</span> <span class="hljs-selector-tag">h1</span> <span class="hljs-selector-tag">h2</span> <span class="hljs-selector-tag">h3</span> <span class="hljs-selector-tag">h4</span> <span class="hljs-selector-tag">h5</span> <span class="hljs-selector-tag">h6</span>&#123;</span><br><span class="language-css">            <span class="hljs-attribute">line-height</span>: <span class="hljs-number">30px</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">border-right</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-collapse</span>: collapse;</span><br><span class="language-css">            <span class="hljs-attribute">text-align</span>: center;</span><br><span class="language-css">            <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;</span><br><span class="language-css">            <span class="hljs-attribute">font-size</span>: <span class="hljs-number">13px</span>;</span><br><span class="language-css">            <span class="hljs-comment">/* 表格分页直接换到下一页*/</span></span><br><span class="language-css">            <span class="hljs-comment">/*page-break-before: always;*/</span></span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">caption</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">font-size</span>: <span class="hljs-number">2em</span>;</span><br><span class="language-css">            <span class="hljs-attribute">font-weight</span>: bold;</span><br><span class="language-css">            <span class="hljs-attribute">margin</span>: <span class="hljs-number">1em</span> <span class="hljs-number">0</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">th</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">border-left</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-top</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-collapse</span>: collapse;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">td</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">border-left</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-top</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#000000</span>;</span><br><span class="language-css">            <span class="hljs-attribute">border-collapse</span>: collapse;</span><br><span class="language-css">            <span class="hljs-attribute">height</span>: <span class="hljs-number">40px</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">thead</span> <span class="hljs-selector-tag">tr</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#008c8c</span>;</span><br><span class="language-css">            <span class="hljs-attribute">color</span>: <span class="hljs-number">#fff</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">tbody</span> <span class="hljs-selector-tag">tr</span><span class="hljs-selector-pseudo">:nth-child</span>(odd) &#123;</span><br><span class="language-css">            <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#eee</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">tbody</span> <span class="hljs-selector-tag">tr</span><span class="hljs-selector-pseudo">:hover</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#ccc</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">table</span> <span class="hljs-selector-tag">tfoot</span> <span class="hljs-selector-tag">tr</span> <span class="hljs-selector-tag">td</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">text-align</span>: right;</span><br><span class="language-css">            <span class="hljs-attribute">padding-right</span>: <span class="hljs-number">20px</span>;</span><br><span class="language-css">            <span class="hljs-comment">/*分页时表格行换行*/</span></span><br><span class="language-css">            <span class="hljs-attribute">page-break-inside</span>: avoid <span class="hljs-meta">!important</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-tag">tr</span> &#123;</span><br><span class="language-css">            <span class="hljs-comment">/* 表格分页,只有行换到下一页 */</span></span><br><span class="language-css">            <span class="hljs-attribute">page-break-inside</span>: avoid <span class="hljs-meta">!important</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-id">#period</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">color</span>: <span class="hljs-number">#f40</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css">        <span class="hljs-selector-id">#schoolTimeTable</span> &#123;</span><br><span class="language-css">            <span class="hljs-attribute">width</span>: <span class="hljs-number">60%</span>;</span><br><span class="language-css">            <span class="hljs-attribute">margin-left</span>: <span class="hljs-number">20%</span>;</span><br><span class="language-css">            <span class="hljs-attribute">margin-right</span>: <span class="hljs-number">20%</span>;</span><br><span class="language-css">        &#125;</span><br><span class="language-css"></span><br><span class="language-css"></span><br><span class="language-css">    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;text-align: center&quot;</span>&gt;</span>2021-2022学年第一学期高一英语教学计划<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>本学期的指导思想<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br>        1、坚定不移的遵循新教育理念，突出学生主体，让学生成为学习的主人<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br><br>        2、面向全体学生，关注每个学生的情感，激发他们学习英语的兴趣，帮助他们建立学习的成就感和自信心。<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br><br>        3、尊重个体差异，让学生在老师的指导下构建知识，提高技能，磨练意志，活跃思维，展现个性，发展心智和拓展视野;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br><br>        4、让学生在使用英语中学习英语，让学生成为 Good User而不仅仅是 Learner。让他们在使用和学习英语的过程中，体味到轻松和成功的快乐。<br>    <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;line-height: 30px&quot;</span>&gt;</span>本学期的重点工作<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h5</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;line-height: 30px&quot;</span>&gt;</span>（一）全面做好初高中衔接工作<span class="hljs-tag">&lt;/<span class="hljs-name">h5</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br>        初中和高中在教学对象、教学内容、教学要求、教学方式和学习方式方面均存在着一定的差异，因此，帮助高一新生了解这些差异，引导他们尽快适应高中的学习与生活。<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h5</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;line-height: 30px&quot;</span>&gt;</span>（二）优化使用新教材，精编学案<span class="hljs-tag">&lt;/<span class="hljs-name">h5</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><br>        一方面，对于新教材，要做到学习教材，研究教材，理解教材各个栏日的编写意图，最大限度地发挥各个栏目的作用。另一方面要要根据教学目标和课时及学生实际对其进行大胆的取舍和重组，是教材为我所用，而不是被教材牵着鼻子走。变“教教材”为“用教材教”。教师在教学时应根据本班学生的实际情况，运用可行的教学策略，引导学生参与讨论解题的过程、思路和方法，培养和训练学生对问题的思辩能力。<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;schoolTimeTable&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">caption</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;text-align: center&quot;</span>&gt;</span>光明中学2023秋季学期课表<span class="hljs-tag">&lt;/<span class="hljs-name">caption</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">thead</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;15%&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;float:left;margin-top:10%;margin-left:10%&quot;</span>&gt;</span>时段<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;float:right;margin-bottom:10%;margin-right:10%&quot;</span>&gt;</span>星期<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;17%&quot;</span>&gt;</span>周一<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;17%&quot;</span>&gt;</span>周二<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;17%&quot;</span>&gt;</span>周三<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;17%&quot;</span>&gt;</span>周四<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;17%&quot;</span>&gt;</span>周五<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">thead</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">tbody</span>&gt;</span><br>        &lt;#list schoolTimetable as tab&gt;<br>            &lt;#list tab.weekLessons as weekLessons&gt;<br>                <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><br>                    &lt;#--xml循环第一个元素,需要合并单元格--&gt;<br>                    &lt;#if weekLessons?is_first&gt;<br>                        <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;period&quot;</span> <span class="hljs-attr">rowspan</span>=<span class="hljs-string">&quot;$&#123;tab.lessonsSize&#125;&quot;</span>&gt;</span>$&#123;tab.period&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                    &lt;/#if&gt;<br>                    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>$&#123;weekLessons.mon&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>$&#123;weekLessons.tue&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>$&#123;weekLessons.wed&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>$&#123;weekLessons.thu&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>$&#123;weekLessons.fri&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>            &lt;/#list&gt;<br>        &lt;/#list&gt;<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">tbody</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;$&#123;recruitStudentImg&#125;&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;recruitStudentImg&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;width: 90%;margin-left: 5%;margin-right: 15%&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、图表生成"><a href="#二、图表生成" class="headerlink" title="二、图表生成"></a>二、图表生成</h1><p>看板业务需求中，在前端展示使用<code>Echarts</code>将数据绘制为折线图、饼状图等是非常常见的。同样地，我们也可以借助<code>JFreeChart</code> 将需要将数据模型转换为图表添加到生成的模板文件中。</p>
+<h2 id="2-1-什么是-JFreeChart"><a href="#2-1-什么是-JFreeChart" class="headerlink" title="2.1 什么是 JFreeChart"></a>2.1 什么是 <code>JFreeChart</code></h2><p><code>JFreeChart</code> 由 David Gilbert 于 2000 年创立。如今，<code>JFreeChart</code> 是 Java 开发人员中使用最广泛的图表库。</p>
+<p><code>JFreeChart</code> 允许创建各种交互式和非交互式图表；可以广泛地定制； 它允许修改图表项目的颜色和绘制，图例，线条或标记的样式。 它会自动绘制轴刻度和图例。可以创建折线图，条形图，面积图，散点图，饼图，甘特图和各种专用图，例如风向图或气泡图。它支持多种输出格式，包括 <code>PNG</code>，<code>JPEG</code>，<code>PDF</code> 和 <code>SVG</code>。</p>
+<blockquote>
+<p>各类图表的详细绘制教程可参考： <a target="_blank" rel="noopener" href="https://blog.csdn.net/hfy1237/article/details/126693786?ops_request_misc=%7B%22request_id%22:%22169372606516800188510194%22,%22scm%22:%2220140713.130102334..%22%7D&request_id=169372606516800188510194&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-126693786-null-null.142%5Ev93%5Ekoosearch_v1&utm_term=Jfreechart&spm=1018.2226.3001.4187">Java绘图库JFreeChart的详细使用教程</a> </p>
+</blockquote>
+<h2 id="2-2-依赖引入"><a href="#2-2-依赖引入" class="headerlink" title="2.2 依赖引入"></a>2.2 依赖引入</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- JfreeCharts --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.jfree<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>jfreechart<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.5.4<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-3-图表美化"><a href="#2-3-图表美化" class="headerlink" title="2.3 图表美化"></a>2.3 图表美化</h2><blockquote>
+<p>该部分参考： <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41663412/article/details/105015098?ops_request_misc=&request_id=8f56629d6efa4640aea31a8e764421d8&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~all~koosearch~default-7-105015098-null-null.142%5Ev93%5Ekoosearch_v1&utm_term=Jfreechart%E7%BE%8E%E5%8C%96&spm=1018.2226.3001.4187">Jfreechart绘制漂亮的图表</a> </p>
+</blockquote>
+<p>我们知道原生<code>JFreeChart</code>自带的图表绘制并不尽如人意，通过自定义主题可以更接近当前主流<code>Echarts</code> 、<code>Highcharts</code> 的绘图风格。</p>
+<p>原生图表风格：</p>
+<p><img src="/../blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/1693726933835.png" srcset="/img/loading.gif" lazyload alt="原生JfreeChart"></p>
+<p> 美化后图表风格：<img src="/../blog-assets/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/aHR0cDovL3N0YXRpYy5vc2NoaW5hLm5ldC91cGxvYWRzL3NwYWNlLzIwMTQvMDYxMS8xNzUxMTlfcVJvMF84NTUwMTkucG5n.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>美化工具类<code>ChartConfUtils.java</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChartConfUtils</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">NO_DATA_MSG</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;数据加载失败&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Font</span> <span class="hljs-variable">FONT</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Font</span>(<span class="hljs-string">&quot;宋体&quot;</span>, Font.PLAIN, <span class="hljs-number">12</span>);<br>    <span class="hljs-comment">// 颜色</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Color[] CHART_COLORS = &#123;<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">255</span>,<span class="hljs-number">188</span>,<span class="hljs-number">117</span>),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">31</span>,<span class="hljs-number">129</span>,<span class="hljs-number">188</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">92</span>,<span class="hljs-number">92</span>,<span class="hljs-number">97</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">144</span>,<span class="hljs-number">237</span>,<span class="hljs-number">125</span>),<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">153</span>,<span class="hljs-number">158</span>,<span class="hljs-number">255</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">255</span>,<span class="hljs-number">117</span>,<span class="hljs-number">153</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">253</span>,<span class="hljs-number">236</span>,<span class="hljs-number">109</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">128</span>,<span class="hljs-number">133</span>,<span class="hljs-number">232</span>),<br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">158</span>,<span class="hljs-number">90</span>,<span class="hljs-number">102</span>),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">255</span>, <span class="hljs-number">204</span>, <span class="hljs-number">102</span>) &#125;;<br><br>    <span class="hljs-keyword">static</span> &#123;<br>        setChartTheme();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ChartConfUtils</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 中文主题样式 解决乱码</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setChartTheme</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 设置中文主题样式 解决乱码</span><br>        <span class="hljs-type">StandardChartTheme</span> <span class="hljs-variable">chartTheme</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StandardChartTheme</span>(<span class="hljs-string">&quot;CN&quot;</span>);<br>        <span class="hljs-comment">// 设置标题字体</span><br>        chartTheme.setExtraLargeFont(FONT);<br>        <span class="hljs-comment">// 设置图例的字体</span><br>        chartTheme.setRegularFont(FONT);<br>        <span class="hljs-comment">// 设置轴向的字体</span><br>        chartTheme.setLargeFont(FONT);<br>        chartTheme.setSmallFont(FONT);<br>        chartTheme.setTitlePaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">51</span>, <span class="hljs-number">51</span>, <span class="hljs-number">51</span>));<br>        chartTheme.setSubtitlePaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">85</span>, <span class="hljs-number">85</span>, <span class="hljs-number">85</span>));<br><br>        chartTheme.setLegendBackgroundPaint(Color.WHITE);<span class="hljs-comment">// 设置标注</span><br>        chartTheme.setLegendItemPaint(Color.BLACK);<span class="hljs-comment">//</span><br>        chartTheme.setChartBackgroundPaint(Color.WHITE);<br><br>        Paint[] OUTLINE_PAINT_SEQUENCE = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Paint</span>[] &#123; Color.WHITE &#125;;<br>        <span class="hljs-comment">// 绘制器颜色源</span><br>        <span class="hljs-type">DefaultDrawingSupplier</span> <span class="hljs-variable">drawingSupplier</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultDrawingSupplier</span>(CHART_COLORS, CHART_COLORS, OUTLINE_PAINT_SEQUENCE,<br>                DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE, DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,<br>                DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE);<br>        chartTheme.setDrawingSupplier(drawingSupplier);<br><br>        chartTheme.setPlotBackgroundPaint(Color.WHITE);<span class="hljs-comment">// 绘制区域</span><br>        chartTheme.setPlotOutlinePaint(Color.WHITE);<span class="hljs-comment">// 绘制区域外边框</span><br>        chartTheme.setLabelLinkPaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">8</span>, <span class="hljs-number">55</span>, <span class="hljs-number">114</span>));<span class="hljs-comment">// 链接标签颜色</span><br>        chartTheme.setLabelLinkStyle(PieLabelLinkStyle.CUBIC_CURVE);<br><br>        chartTheme.setAxisOffset(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RectangleInsets</span>(<span class="hljs-number">5</span>, <span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">12</span>));<br>        chartTheme.setDomainGridlinePaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">192</span>, <span class="hljs-number">208</span>, <span class="hljs-number">224</span>));<span class="hljs-comment">// X坐标轴垂直网格颜色</span><br>        chartTheme.setRangeGridlinePaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">192</span>, <span class="hljs-number">192</span>, <span class="hljs-number">192</span>));<span class="hljs-comment">// Y坐标轴水平网格颜色</span><br><br>        chartTheme.setBaselinePaint(Color.WHITE);<br>        chartTheme.setCrosshairPaint(Color.BLUE);<span class="hljs-comment">// 不确定含义</span><br>        chartTheme.setAxisLabelPaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">51</span>, <span class="hljs-number">51</span>, <span class="hljs-number">51</span>));<span class="hljs-comment">// 坐标轴标题文字颜色</span><br>        chartTheme.setTickLabelPaint(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Color</span>(<span class="hljs-number">67</span>, <span class="hljs-number">67</span>, <span class="hljs-number">72</span>));<span class="hljs-comment">// 刻度数字</span><br>        chartTheme.setBarPainter(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StandardBarPainter</span>());<span class="hljs-comment">// 设置柱状图渲染</span><br>        chartTheme.setXYBarPainter(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StandardXYBarPainter</span>());<span class="hljs-comment">// XYBar 渲染</span><br><br>        chartTheme.setItemLabelPaint(Color.black);<br>        chartTheme.setThermometerPaint(Color.white);<span class="hljs-comment">// 温度计</span><br><br>        ChartFactory.setChartTheme(chartTheme);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 必须设置文本抗锯齿</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAntiAlias</span><span class="hljs-params">(JFreeChart chart)</span> &#123;<br>        chart.setTextAntiAlias(<span class="hljs-literal">false</span>);<br><br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 设置图例无边框，默认黑色边框</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setLegendEmptyBorder</span><span class="hljs-params">(JFreeChart chart)</span> &#123;<br>        <span class="hljs-type">LegendTitle</span> <span class="hljs-variable">legend</span> <span class="hljs-operator">=</span> chart.getLegend();<span class="hljs-comment">// 图例对象</span><br>        legend.setFrame(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BlockBorder</span>(Color.WHITE));<br>        legend.setPosition(RectangleEdge.TOP);<span class="hljs-comment">// 图例所在位置(上、下、左、右)</span><br>        legend.setVisible(<span class="hljs-literal">true</span>);<span class="hljs-comment">// 是否显示图例</span><br>        legend.setItemFont(FONT);<span class="hljs-comment">// 图例大小</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-4-图表生成"><a href="#2-4-图表生成" class="headerlink" title="2.4 图表生成"></a>2.4 图表生成</h2><h3 id="图表生成"><a href="#图表生成" class="headerlink" title="图表生成"></a>图表生成</h3><p>工具类<code>JfreeChartUtil</code> 用于根据数据集生成图表并保存图片至相对路径<code>template/img</code>下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * JFreeChart 图表绘制工具类</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> : DunkingCurry</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@createTime</span> : 2023/8/8 21:47</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JfreeChartUtil</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 图片保存的相对路径地址</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">IMG_PATH</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;template/img&quot;</span>;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 依据数据生成图表并导出图片至classpath路径</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">generateChartsAndExportJpg</span><span class="hljs-params">(String title,</span><br><span class="hljs-params">                                                  String xAxisLabel,</span><br><span class="hljs-params">                                                  String yAxisLabel,</span><br><span class="hljs-params">                                                  DefaultCategoryDataset dataset,</span><br><span class="hljs-params">                                                  String outputJpgName)</span> &#123;<br><br>        <span class="hljs-comment">// 主题样式设置</span><br>        ChartConfUtils.setChartTheme();<br>        <span class="hljs-comment">// 创建JFreeChart对象</span><br>        <span class="hljs-type">JFreeChart</span> <span class="hljs-variable">chart</span> <span class="hljs-operator">=</span> ChartFactory.createBarChart(<br>                <span class="hljs-comment">// 图标题</span><br>                title,<br>                <span class="hljs-comment">// x轴标题</span><br>                xAxisLabel,<br>                <span class="hljs-comment">// y轴标题</span><br>                yAxisLabel,<br>                <span class="hljs-comment">//数据集</span><br>                dataset,<br>                <span class="hljs-comment">//图表方向</span><br>                PlotOrientation.VERTICAL,<br>                <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>);<br>        <span class="hljs-comment">// 设置图例</span><br>        ChartConfUtils.setLegendEmptyBorder(chart);<br><br><br>        <span class="hljs-comment">//将生成的图片保存到本地</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">contextPath</span> <span class="hljs-operator">=</span> Objects.requireNonNull(JfreeChartUtil.class.getClassLoader().getResource(IMG_PATH)).getPath();<br>        <span class="hljs-type">String</span> <span class="hljs-variable">filePath</span> <span class="hljs-operator">=</span> contextPath + <span class="hljs-string">&quot;/&quot;</span>+outputJpgName;<br>        <span class="hljs-type">File</span> <span class="hljs-variable">lineChart</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(filePath);<br>        <span class="hljs-comment">//生成文件</span><br>        <span class="hljs-keyword">try</span> &#123;<br>            ChartUtils.saveChartAsJPEG(lineChart, chart,<span class="hljs-number">1080</span>,<span class="hljs-number">540</span>);<br>        &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>            e.printStackTrace();<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;保存图片&quot;</span>+outputJpgName+<span class="hljs-string">&quot;异常&quot;</span>);<br>        &#125;<br>    &#125;<br><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="图表引入模板"><a href="#图表引入模板" class="headerlink" title="图表引入模板"></a>图表引入模板</h3><p>要在HTML中使用<code>&lt;img&gt;</code>标签插入图片一般有两种方式</p>
+<ol>
+<li>指定图片文件路径<code>URL</code></li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;path/to/image.jpg&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;路径插入&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;500&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;600&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>指定图片以<code>Base64</code> 格式插入</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;data:image/jpeg;base64,/9j/4AAQSkZJRgABRU...&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;base64插入&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>对于前端展示页面，通常使用第一种方式，渲染更快速也更直观；然而在生成模板过程中我们需要用到第二种方式。在<code>HTML</code> 转<code>PDF</code> 的过程中，<code> flying-saucer</code>无法识别图片路径，因此我们需要将图片转为<code>base64</code>格式 。</p>
+<p>图片转<code>base64</code> 工具类 <code>ImgBase64Util</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * ImgBase64Util 图片转Base64 工具类</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> DunkingCurry</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ImgBase64Util</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">IMG_PRE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;data:image/jpg;base64,&quot;</span>;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 本地图片转换成base64字符串</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> imgFile 图片本地路径</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">imageToBase64ByLocal</span><span class="hljs-params">(String imgFile)</span> &#123;<span class="hljs-comment">// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理</span><br><br><br>        <span class="hljs-type">InputStream</span> <span class="hljs-variable">fis</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">byte</span>[] data = <span class="hljs-literal">null</span>;<br><br>        <span class="hljs-comment">// 读取图片字节数组</span><br>        <span class="hljs-keyword">try</span> &#123;<br>            fis = <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(imgFile);<br>            <span class="hljs-comment">//新的 byte 数组输出流，缓冲区容量1024byte</span><br>            <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">bos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>(<span class="hljs-number">1024</span>);<br>            <span class="hljs-comment">//缓存</span><br>            <span class="hljs-type">byte</span>[] b = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">1024</span>];<br>            <span class="hljs-type">int</span> n;<br>            <span class="hljs-keyword">while</span> ((n = fis.read(b)) != -<span class="hljs-number">1</span>) &#123;<br>                bos.write(b, <span class="hljs-number">0</span>, n);<br>            &#125;<br>            fis.close();<br>            <span class="hljs-comment">//改变为byte[]</span><br>            data = bos.toByteArray();<br><br>        &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>            e.printStackTrace();<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">if</span> (fis != <span class="hljs-literal">null</span>) &#123;<br>                    fis.close();<br>                &#125;<br>            &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> IMG_PRE+DatatypeConverter.printBase64Binary(data);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * base64字符串转换成图片</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> imgStr      base64字符串</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> imgFilePath 图片存放路径</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">base64ToImage</span><span class="hljs-params">(String imgStr, String imgFilePath)</span> &#123; <span class="hljs-comment">// 对字节数组字符串进行Base64解码并生成图片</span><br><br>        <span class="hljs-keyword">if</span> (StringUtils.isEmpty(imgStr)) &#123;<br>            <span class="hljs-comment">// 图像数据为空</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br><br>        <span class="hljs-type">OutputStream</span> <span class="hljs-variable">out</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">try</span> &#123;<br><br>            <span class="hljs-type">byte</span>[] b = DatatypeConverter.parseBase64Binary(imgStr);<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; b.length; ++i) &#123;<br>                <span class="hljs-keyword">if</span> (b[i] &lt; <span class="hljs-number">0</span>) &#123;<br>                    <span class="hljs-comment">// 调整异常数据</span><br>                    b[i] += <span class="hljs-number">256</span>;<br>                &#125;<br>            &#125;<br><br>            out = <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(imgFilePath);<br>            out.write(b);<br>            out.flush();<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">if</span> (out != <span class="hljs-literal">null</span>) &#123;<br>                    out.close();<br>                &#125;<br>            &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 数据集转base64图片链接</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> title 图标题</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> xAxisLabel x轴</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> yAxisLabel y轴</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> dataset 数据集</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> jpgName 图名称.jpg</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> 图片的base64链接</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">genBase64ImageByChart</span><span class="hljs-params">(String title,</span><br><span class="hljs-params">                                               String xAxisLabel,</span><br><span class="hljs-params">                                               String yAxisLabel,</span><br><span class="hljs-params">                                               DefaultCategoryDataset dataset,</span><br><span class="hljs-params">                                               String jpgName)</span>&#123;<br>        <span class="hljs-comment">// 生成图表并保存图片至本地路径</span><br>        JfreeChartUtil.generateChartsAndExportJpg(title,xAxisLabel,yAxisLabel,dataset,jpgName);<br>        <span class="hljs-comment">// 获取图表jpg相对路径</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">imgRetPath</span> <span class="hljs-operator">=</span> JfreeChartUtil.IMG_PATH +<span class="hljs-string">&quot;/&quot;</span>+ jpgName;<br>        <span class="hljs-comment">// 获取图表jpg绝对路径</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">imgAbsPath</span> <span class="hljs-operator">=</span> Objects.requireNonNull(ImgBase64Util.class.getClassLoader().getResource(imgRetPath)).getPath();<br>        <span class="hljs-comment">// 将图片转为base64返回</span><br>        <span class="hljs-keyword">return</span> imageToBase64ByLocal(imgAbsPath);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="调用示例"><a href="#调用示例" class="headerlink" title="调用示例"></a>调用示例</h3><p>图表在<code>FTL</code> 模板中的示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;$&#123;recruitStudentImg&#125;&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;recruitStudentImg&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;width: 90%;margin-left: 5%;margin-right: 15%&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>在<code>java</code>中的调用示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">HashMap&lt;String, Object&gt; dataMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br><span class="hljs-comment">// 创建数据</span><br><span class="hljs-type">DefaultCategoryDataset</span> <span class="hljs-variable">dataset</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultCategoryDataset</span>();<br>dataset.addValue(<span class="hljs-number">306</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高一&quot;</span>);<br>dataset.addValue(<span class="hljs-number">295</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高二&quot;</span>);<br>dataset.addValue(<span class="hljs-number">285</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高三&quot;</span>);<br>dataset.addValue(<span class="hljs-number">282</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高一&quot;</span>);<br>dataset.addValue(<span class="hljs-number">301</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高二&quot;</span>);<br>dataset.addValue(<span class="hljs-number">296</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高三&quot;</span>);<br><span class="hljs-comment">// 获取生成的图表</span><br><span class="hljs-type">String</span> <span class="hljs-variable">recruitStudentImg</span> <span class="hljs-operator">=</span> ImgBase64Util.genBase64ImageByChart(<span class="hljs-string">&quot;招生人数统计&quot;</span>, <span class="hljs-string">&quot;年份&quot;</span>, <span class="hljs-string">&quot;人数&quot;</span>, dataset, <span class="hljs-string">&quot;recruit_student.jpg&quot;</span>);<br>dataMap.put(<span class="hljs-string">&quot;recruitStudentImg&quot;</span>,recruitStudentImg);<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、使用-Flying-saucer-itext5-生成-PDF"><a href="#三、使用-Flying-saucer-itext5-生成-PDF" class="headerlink" title="三、使用 Flying-saucer-itext5 生成 PDF"></a>三、使用 Flying-saucer-itext5 生成 PDF</h1><h2 id="3-1-什么是-Flying-saucer-itext5"><a href="#3-1-什么是-Flying-saucer-itext5" class="headerlink" title="3.1 什么是 Flying-saucer-itext5"></a>3.1 什么是 <code>Flying-saucer-itext5</code></h2><p> <code>iText</code>是著名的开放源码站点<code>sourceforge</code>的一个项目，是用于生成<code>PDF</code>文档的一个<code>Java</code>类库。通过<code>iText</code>不仅可以生成<code>PDF</code>或<code>RTF</code>的文档，而且可以将<code>XML</code>、<code>HTML</code>文件转化为<code>PDF</code>文件。  <code>flying sauser</code> 基于<code>iText</code>并做了封装，能进一步解析<code>HTML</code>和<code>CSS</code>。 </p>
+<h2 id="3-2-依赖引入"><a href="#3-2-依赖引入" class="headerlink" title="3.2 依赖引入"></a>3.2 依赖引入</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- html转PDF --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.xhtmlrenderer<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>flying-saucer-pdf-itext5<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>9.1.22<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-3-HTML转PDF"><a href="#3-3-HTML转PDF" class="headerlink" title="3.3 HTML转PDF"></a>3.3 HTML转PDF</h2><p>这里使用到工具类 <code>HtmlToPDFUtil</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * HtmlToPdfUtil 转换pdf工具类</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> DunkingCurry</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HtmlToPDFUtil</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 使用 freemarker 渲染 HTML</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> templateFileName HTML模板路径</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> data   渲染的参数</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> 返回渲染后的html代码</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">render</span><span class="hljs-params">(String templateFileName, Object data)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Configuration</span> <span class="hljs-variable">cfg</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);<br>        <span class="hljs-comment">// 指定FreeMarker模板文件的位置</span><br>        cfg.setClassForTemplateLoading(PdfTemplateUtil.class,<span class="hljs-string">&quot;/template&quot;</span>);<br>        <span class="hljs-type">Template</span> <span class="hljs-variable">template</span> <span class="hljs-operator">=</span> cfg.getTemplate(templateFileName, <span class="hljs-string">&quot;UTF-8&quot;</span>);<br>        <span class="hljs-type">StringWriter</span> <span class="hljs-variable">writer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringWriter</span>();<br><br>        <span class="hljs-comment">// 将数据输出到html中</span><br>        template.process(data, writer);<br>        writer.flush();<br>        <span class="hljs-keyword">return</span> writer.toString();<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 根据html生成pdf的base64格式</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getPDFBase64ByHtml</span><span class="hljs-params">(String html)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">//构建字节输出流</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ITextRenderer</span> <span class="hljs-variable">renderer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ITextRenderer</span>();<br>        <span class="hljs-comment">// 解决base64图片支持问题</span><br>        <span class="hljs-type">SharedContext</span> <span class="hljs-variable">sharedContext</span> <span class="hljs-operator">=</span> renderer.getSharedContext();<br>        sharedContext.setReplacedElementFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">B64ImgReplacedElementFactory</span>());<br>        sharedContext.getTextRenderer().setSmoothingThreshold(<span class="hljs-number">0</span>);<br>        <span class="hljs-type">ITextFontResolver</span> <span class="hljs-variable">fontResolver</span> <span class="hljs-operator">=</span> renderer.getFontResolver();<br>        <span class="hljs-comment">// html中设置的字体样式需要参考此处debug后fontResolver的fontFamily的数据的key</span><br>        <span class="hljs-comment">//指定文件字体添加到PDF库，指定字体不作为内部字体，而是外部字体被加载</span><br>        fontResolver.addFont(<span class="hljs-string">&quot;/template/font/simsun.ttc,0&quot;</span>, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);<br>        renderer.setDocumentFromString(html);<br>        renderer.layout();<br>        renderer.createPDF(baos);<br><br>        <span class="hljs-keyword">return</span> Base64.encodeBytes(baos.toByteArray());<br>    &#125;<br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 根据pdf的base64格式和路径生成pdf文件</span><br><span class="hljs-comment">     *  <span class="hljs-doctag">@param</span> base64 pdf的base64格式</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ByteArrayOutputStream <span class="hljs-title function_">base64ToPDF</span><span class="hljs-params">(String base64)</span> &#123;<br>        <span class="hljs-type">byte</span>[] bytes = Base64.decode(base64);<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">out</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-keyword">try</span> &#123;<br>            out.write(bytes);<br>            out.flush();<br>        &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> out;<br>    &#125;<br><br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 合并添加水印 页眉和页脚 水印的方法 (可根据需求自行改动封装)</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> pdfBase64        PDF的Base64格式</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> isAddWatermark   是否添加水印</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> waterMarkName    水印文字</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> isAddPageNumbers 是否添加页眉</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> headerText       页眉名称</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> isAddLogoImg     是否添加Logo</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> logoPath         logo图片路径</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> newWidth         图片大小宽度如 141</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> newHeight        图片大小高度如30</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> absoluteX        图片相对位置 如20</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> absoluteY        图片相对位置 如-30</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">pdfAddWaterHeaderLogo</span><span class="hljs-params">(String pdfBase64</span><br><span class="hljs-params">            , <span class="hljs-type">boolean</span> isAddWatermark, String waterMarkName</span><br><span class="hljs-params">            , <span class="hljs-type">boolean</span> isAddPageNumbers, String headerText</span><br><span class="hljs-params">            , <span class="hljs-type">boolean</span> isAddLogoImg, String logoPath, <span class="hljs-type">float</span> newWidth, <span class="hljs-type">float</span> newHeight, <span class="hljs-type">float</span> absoluteX, <span class="hljs-type">float</span> absoluteY</span><br><span class="hljs-params">            , <span class="hljs-type">boolean</span> isAddWatermarkLogo, String watermarkLogoPath</span><br><span class="hljs-params">            , <span class="hljs-type">boolean</span> isAddBgImage, String bgImagePath</span><br><span class="hljs-params">    )</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">byte</span>[] bytes = Base64.decode(pdfBase64);<br>            <span class="hljs-comment">/**</span><br><span class="hljs-comment">             * PdfReader是iText库中的PDF解析器，用于读取和解析PDF文件。通过PdfReader对象，可以获取PDF文件的各种属性和内容，</span><br><span class="hljs-comment">             * 如总页数、页面尺寸、文本内容等。它提供了方法来打开和关闭PDF文件，并可以从文件路径、InputStream或字节数组等多种方式加载PDF文件。</span><br><span class="hljs-comment">             *</span><br><span class="hljs-comment">             * PdfStamper是iText库中的PDF编辑器，用于修改和编辑PDF文件。通过PdfStamper对象，</span><br><span class="hljs-comment">             * 可以在PDF文件中添加文本、图片、表单域等元素，修改页面内容、添加注释、加密文档等操作。它基于已解析的PdfReader对象，可以将修改后的内容写入新的PDF文件或覆盖原始文件。</span><br><span class="hljs-comment">             */</span><br>            <span class="hljs-type">PdfReader</span> <span class="hljs-variable">reader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PdfReader</span>(bytes);<br>            <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">bos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>            <span class="hljs-type">PdfStamper</span> <span class="hljs-variable">stamper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PdfStamper</span>(reader, bos);<br><br>            <span class="hljs-type">int</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> reader.getNumberOfPages();<br><br>            <span class="hljs-keyword">if</span> (isAddBgImage) &#123;<br>                addBackgroundImage(stamper, reader, bgImagePath);<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (isAddLogoImg) &#123;<br>                addLogoImg(stamper, reader, logoPath, newWidth, newHeight, absoluteX, absoluteY);<br>            &#125;<br><br><br>            <span class="hljs-keyword">if</span> (isAddPageNumbers) &#123;<br>                addPageNumbers(stamper, reader, headerText);<br>            &#125;<br><br>            <span class="hljs-comment">// 添加水印放到最后执行 否则会将页眉页脚进行透明度设置</span><br>            <span class="hljs-keyword">if</span> (isAddWatermark) &#123;<br>                addWatermark(stamper, reader, waterMarkName);<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (isAddWatermarkLogo) &#123;<br>                addWatermarkImage(stamper, reader, watermarkLogoPath);<br>            &#125;<br><br><br>            stamper.close();<br>            reader.close();<br>            <span class="hljs-keyword">return</span> Base64.encodeBytes(bos.toByteArray());<br>        &#125; <span class="hljs-keyword">catch</span> (IOException | DocumentException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 添加水印</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> stamper       PdfStamper对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> reader        PdfReader对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> waterMarkName 水印文字</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addWatermark</span><span class="hljs-params">(PdfStamper stamper, PdfReader reader, String waterMarkName)</span> <span class="hljs-keyword">throws</span> DocumentException, IOException &#123;<br>        <span class="hljs-type">BaseFont</span> <span class="hljs-variable">baseFont</span> <span class="hljs-operator">=</span> BaseFont.createFont(<span class="hljs-string">&quot;/template/font/simsun.ttc,0&quot;</span>, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);<br>        Rectangle pageRect;<br>        <span class="hljs-type">PdfGState</span> <span class="hljs-variable">gs</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PdfGState</span>();<br>        <span class="hljs-comment">// 填充的透明度</span><br>        gs.setFillOpacity(<span class="hljs-number">0.1f</span>);<br>        <span class="hljs-comment">// 描边的透明度</span><br>        gs.setStrokeOpacity(<span class="hljs-number">0.1f</span>);<br><br>        <span class="hljs-type">JLabel</span> <span class="hljs-variable">label</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JLabel</span>();<br>        FontMetrics metrics;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">textH</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">textW</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        label.setText(waterMarkName);<br>        metrics = label.getFontMetrics(label.getFont());<br>        textH = metrics.getHeight();<br>        textW = metrics.stringWidth(label.getText());<br><br>        PdfContentByte under;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= reader.getNumberOfPages(); i++) &#123;<br>            pageRect = reader.getPageSizeWithRotation(i);<br>            under = stamper.getOverContent(i);<br>            under.saveState();<br>            under.setGState(gs);<br>            under.beginText();<br>            under.setFontAndSize(baseFont, <span class="hljs-number">20</span>);<br>            <span class="hljs-comment">//水印颜色</span><br>            under.setColorFill(BaseColor.BLACK);<br><br>            <span class="hljs-comment">// 水印文字成30度角倾斜</span><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">height</span> <span class="hljs-operator">=</span> -<span class="hljs-number">5</span> + textH; height &lt; pageRect.getHeight(); height = height + textH * <span class="hljs-number">4</span>) &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">width</span> <span class="hljs-operator">=</span> -<span class="hljs-number">5</span> + textW; width &lt; pageRect.getWidth() + textW; width = width + textW * <span class="hljs-number">3</span>) &#123;<br>                    under.showTextAligned(Element.ALIGN_LEFT, waterMarkName, width - textW, height - textH, <span class="hljs-number">30</span>);<br>                &#125;<br>            &#125;<br>            <span class="hljs-comment">// 添加水印文字</span><br>            under.endText();<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 添加页眉 (页脚)</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> stamper PdfStamper对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> reader  PdfReader对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> DocumentException</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> IOException</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addPageNumbers</span><span class="hljs-params">(PdfStamper stamper, PdfReader reader, String headerText)</span> <span class="hljs-keyword">throws</span> DocumentException, IOException &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> reader.getNumberOfPages();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= total; i++) &#123;<br>            <span class="hljs-type">Rectangle</span> <span class="hljs-variable">pageRect</span> <span class="hljs-operator">=</span> reader.getPageSizeWithRotation(i);<br>            <span class="hljs-type">PdfContentByte</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> stamper.getOverContent(i);<br><br>            <span class="hljs-type">BaseFont</span> <span class="hljs-variable">baseFont</span> <span class="hljs-operator">=</span> BaseFont.createFont(<span class="hljs-string">&quot;/template/font/simsun.ttc,0&quot;</span>, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);<br>            content.setFontAndSize(baseFont, <span class="hljs-number">20</span>);<br><br>            ColumnText.showTextAligned(content, Element.ALIGN_CENTER, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phrase</span>(headerText, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Font</span>(baseFont, <span class="hljs-number">10</span>)),<br>                    pageRect.getWidth() / <span class="hljs-number">2</span>, pageRect.getTop() - <span class="hljs-number">20</span>, <span class="hljs-number">0</span>);<br><br>            ColumnText.showTextAligned(content, Element.ALIGN_CENTER, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phrase</span>(<span class="hljs-string">&quot;页码 &quot;</span> + i + <span class="hljs-string">&quot; / &quot;</span> + total, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Font</span>(baseFont, <span class="hljs-number">10</span>)),<br>                    pageRect.getRight()-<span class="hljs-number">50</span>, pageRect.getBottom() + <span class="hljs-number">10</span>, <span class="hljs-number">0</span>);<br><br>            ColumnText.showTextAligned(content, Element.ALIGN_CENTER, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Phrase</span>(<span class="hljs-string">&quot;Copyright © 2023 HollowStars. All rights reserved.&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Font</span>(baseFont, <span class="hljs-number">10</span>)),<br>                    (pageRect.getLeft() + pageRect.getRight()) / <span class="hljs-number">2</span>, pageRect.getBottom() + <span class="hljs-number">10</span>, <span class="hljs-number">0</span>);<br><br>        &#125;<br>    &#125;<br><br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 添加图片logo</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> stamper   PdfStamper对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> reader    PdfReader对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> logoPath  图片路径</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> newWidth  图片大小宽度如 141</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> newHeight 图片大小高度如30</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> absoluteX 图片相对位置 如20</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> absoluteY 图片相对位置 如-30</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> DocumentException</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> IOException</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addLogoImg</span><span class="hljs-params">(PdfStamper stamper, PdfReader reader, String logoPath, <span class="hljs-type">float</span> newWidth, <span class="hljs-type">float</span> newHeight, <span class="hljs-type">float</span> absoluteX, <span class="hljs-type">float</span> absoluteY)</span> <span class="hljs-keyword">throws</span> DocumentException, IOException &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= reader.getNumberOfPages(); i++) &#123;<br>            <span class="hljs-type">Rectangle</span> <span class="hljs-variable">pageRect</span> <span class="hljs-operator">=</span> reader.getPageSizeWithRotation(i);<br>            <span class="hljs-type">PdfContentByte</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> stamper.getOverContent(i);<br><br>            <span class="hljs-type">BaseFont</span> <span class="hljs-variable">baseFont</span> <span class="hljs-operator">=</span> BaseFont.createFont(<span class="hljs-string">&quot;/template/font/simsun.ttc&quot;</span>, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);<br>            content.setFontAndSize(baseFont, <span class="hljs-number">20</span>);<br><br>            <span class="hljs-comment">// 添加Logo图片到页眉</span><br>            <span class="hljs-type">Image</span> <span class="hljs-variable">logoImage</span> <span class="hljs-operator">=</span> Image.getInstance(logoPath);<br>            logoImage.scaleAbsolute(newWidth, newHeight);<br>            logoImage.setAbsolutePosition(pageRect.getLeft() + absoluteX, pageRect.getTop() + absoluteY);<br>            content.addImage(logoImage);<br><br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 添加水印图片</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> stamper       PdfStamper对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> reader        PdfReader对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> watermarkPath 水印图片路径</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> DocumentException</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> IOException</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addWatermarkImage</span><span class="hljs-params">(PdfStamper stamper, PdfReader reader, String watermarkPath)</span> <span class="hljs-keyword">throws</span> DocumentException, IOException &#123;<br>        <span class="hljs-type">Image</span> <span class="hljs-variable">watermarkImage</span> <span class="hljs-operator">=</span> Image.getInstance(watermarkPath);<br>        watermarkImage.scaleToFit(<span class="hljs-number">400</span>, <span class="hljs-number">400</span>); <span class="hljs-comment">// 调整水印图片大小</span><br><br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * .scaleAbsolute    .scaleToFit 这两个方法 什么区别</span><br><span class="hljs-comment">         * scaleAbsolute和scaleToFit是iText库中用于缩放图像的两个方法。</span><br><span class="hljs-comment">         *</span><br><span class="hljs-comment">         * scaleAbsolute(float width, float height):</span><br><span class="hljs-comment">         * 该方法用于将图像缩放到指定的绝对宽度和高度。</span><br><span class="hljs-comment">         * 参数width和height分别指定了缩放后的宽度和高度。</span><br><span class="hljs-comment">         * 图像将按照指定的宽度和高度进行缩放，可能会导致图像的比例失调。</span><br><span class="hljs-comment">         *</span><br><span class="hljs-comment">         * scaleToFit(float width, float height):</span><br><span class="hljs-comment">         * 该方法用于将图像缩放以适应指定的矩形框的大小。</span><br><span class="hljs-comment">         * 参数width和height指定了矩形框的宽度和高度。</span><br><span class="hljs-comment">         * 图像将按照比例缩放，以适应指定的矩形框，同时保持其宽高比。</span><br><span class="hljs-comment">         * 简而言之，scaleAbsolute方法按照指定的宽度和高度进行缩放，而scaleToFit方法会按照比例缩放以适应指定的矩形框大小。选择使用哪个方法取决于你的需求和图像的要求。</span><br><span class="hljs-comment">         */</span><br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= reader.getNumberOfPages(); i++) &#123;<br>            <span class="hljs-type">Rectangle</span> <span class="hljs-variable">pageRect</span> <span class="hljs-operator">=</span> reader.getPageSizeWithRotation(i);<br>            <span class="hljs-type">PdfContentByte</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> stamper.getOverContent(i);<br><br>            <span class="hljs-comment">// 创建PdfGState对象并设置透明度</span><br>            <span class="hljs-type">PdfGState</span> <span class="hljs-variable">gState</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PdfGState</span>();<br>            gState.setFillOpacity(<span class="hljs-number">0.1f</span>); <span class="hljs-comment">// 水印图片透明度 (0.0f - 1.0f，0.0f 表示完全透明，1.0f 表示完全不透明)</span><br><br>            content.saveState();<br>            content.setGState(gState);<br><br>            <span class="hljs-comment">// 添加水印图片到页面</span><br>            <span class="hljs-type">float</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> (pageRect.getLeft() + pageRect.getRight() - watermarkImage.getScaledWidth()) / <span class="hljs-number">2</span>;<br>            <span class="hljs-type">float</span> <span class="hljs-variable">y</span> <span class="hljs-operator">=</span> (pageRect.getBottom() + pageRect.getTop() - watermarkImage.getScaledHeight()) / <span class="hljs-number">2</span>;<br>            content.addImage(watermarkImage, watermarkImage.getScaledWidth(), <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, watermarkImage.getScaledHeight(), x, y);<br><br>            content.restoreState();<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addBackgroundImage</span><span class="hljs-params">(PdfStamper stamper, PdfReader reader, String bgImagePath)</span> <span class="hljs-keyword">throws</span> DocumentException, IOException &#123;<br>        <span class="hljs-type">Image</span> <span class="hljs-variable">backgroundImage</span> <span class="hljs-operator">=</span> Image.getInstance(bgImagePath);<br>        <span class="hljs-comment">/* 设置图片的位置 */</span><br>        backgroundImage.setAbsolutePosition(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>        <span class="hljs-comment">/* 设置图片的大小 */</span><br>        backgroundImage.scaleAbsolute(<span class="hljs-number">595</span>, <span class="hljs-number">842</span>);<br><br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= reader.getNumberOfPages(); i++) &#123;<br>            <span class="hljs-type">Rectangle</span> <span class="hljs-variable">pageRect</span> <span class="hljs-operator">=</span> reader.getPageSizeWithRotation(i);<br>            <span class="hljs-type">PdfContentByte</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> stamper.getOverContent(i);<br><br>            <span class="hljs-comment">// 创建PdfGState对象并设置透明度</span><br>            <span class="hljs-type">PdfGState</span> <span class="hljs-variable">gState</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PdfGState</span>();<br>            gState.setFillOpacity(<span class="hljs-number">0.2f</span>);<br><br>            content.saveState();<br>            content.setGState(gState);<br><br>            <span class="hljs-comment">// 添加水印图片到页面</span><br>            <span class="hljs-type">float</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> (pageRect.getLeft() + pageRect.getRight() - backgroundImage.getScaledWidth()) / <span class="hljs-number">2</span>;<br>            <span class="hljs-type">float</span> <span class="hljs-variable">y</span> <span class="hljs-operator">=</span> (pageRect.getBottom() + pageRect.getTop() - backgroundImage.getScaledHeight()) / <span class="hljs-number">2</span>;<br>            content.addImage(backgroundImage, backgroundImage.getScaledWidth(), <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, backgroundImage.getScaledHeight(), x, y);<br><br>            content.restoreState();<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该工具类包含了<code>FreeMarker</code>渲染HTML、HTML转<code>PDF</code> 、<code>PDF</code>加工（添加页眉、页脚、水印、背景等）的方法。其中若HTML中<code>&lt;img&gt;</code>标签包含<code>base64</code>图片，需要添加额外<code>B64ImgReplacedElementFactory</code>支持：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> DunkingCurry</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">B64ImgReplacedElementFactory</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReplacedElementFactory</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 实现createReplacedElement 替换html中的Img标签</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> c 上下文</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> box 盒子</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> uac 回调</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> cssWidth css宽</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> cssHeight css高</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> ReplacedElement</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ReplacedElement <span class="hljs-title function_">createReplacedElement</span><span class="hljs-params">(LayoutContext c, BlockBox box, UserAgentCallback uac,</span><br><span class="hljs-params">                                                 <span class="hljs-type">int</span> cssWidth, <span class="hljs-type">int</span> cssHeight)</span> &#123;<br>        <span class="hljs-type">Element</span> <span class="hljs-variable">e</span> <span class="hljs-operator">=</span> box.getElement();<br>        <span class="hljs-keyword">if</span> (e == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        &#125;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">nodeName</span> <span class="hljs-operator">=</span> e.getNodeName();<br>        <span class="hljs-comment">// 找到img标签</span><br>        <span class="hljs-keyword">if</span> (nodeName.equals(<span class="hljs-string">&quot;img&quot;</span>)) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">attribute</span> <span class="hljs-operator">=</span> e.getAttribute(<span class="hljs-string">&quot;src&quot;</span>);<br>            FSImage fsImage;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">// 生成itext图像</span><br>                fsImage = buildImage(attribute, uac);<br>            &#125; <span class="hljs-keyword">catch</span> (BadElementException | IOException e1) &#123;<br>                fsImage = <span class="hljs-literal">null</span>;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (fsImage != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-comment">// 对图像进行缩放</span><br>                <span class="hljs-keyword">if</span> (cssWidth != -<span class="hljs-number">1</span> || cssHeight != -<span class="hljs-number">1</span>) &#123;<br>                    fsImage.scale(cssWidth, cssHeight);<br>                &#125;<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ITextImageElement</span>(fsImage);<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 将base64编码解码并生成itext图像</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> srcAttr 属性</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> uac 回调</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> FSImage</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> IOException io异常</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@throws</span> BadElementException BadElementException</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">protected</span> FSImage <span class="hljs-title function_">buildImage</span><span class="hljs-params">(String srcAttr, UserAgentCallback uac)</span> <span class="hljs-keyword">throws</span> IOException,<br>            BadElementException &#123;<br>        FSImage fsImage;<br>        <span class="hljs-keyword">if</span> (srcAttr.startsWith(<span class="hljs-string">&quot;data:image/&quot;</span>)) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">b64encoded</span> <span class="hljs-operator">=</span> srcAttr.substring(srcAttr.indexOf(<span class="hljs-string">&quot;base64,&quot;</span>) + <span class="hljs-string">&quot;base64,&quot;</span>.length(),<br>                    srcAttr.length());<br>            <span class="hljs-comment">// 解码</span><br>            <span class="hljs-type">byte</span>[] decodedBytes = Base64.decode(b64encoded);<br><br>            fsImage = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ITextFSImage</span>(Image.getInstance(decodedBytes));<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            fsImage = uac.getImageResource(srcAttr).getImage();<br>        &#125;<br>        <span class="hljs-keyword">return</span> fsImage;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 实现remove</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> e 元素</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">remove</span><span class="hljs-params">(Element e)</span> &#123;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 实现reset</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reset</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 实现setFormSubmissionListener</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> formsubmissionlistener 监听</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFormSubmissionListener</span><span class="hljs-params">(FormSubmissionListener formsubmissionlistener)</span> &#123;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>此外，封装按模板直接生成<code>PDF</code>的工具类 <code>PdfTemplateUtil</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> DunkingCurry</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PdfTemplateUtil</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ByteArrayOutputStream <span class="hljs-title function_">createPdfByItext</span><span class="hljs-params">(HashMap&lt;String, Object&gt; dataMap, String templateName)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">html</span> <span class="hljs-operator">=</span> HtmlToPDFUtil.render(templateName, dataMap);<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">base64</span> <span class="hljs-operator">=</span> HtmlToPDFUtil.getPDFBase64ByHtml(html);<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">base64O</span> <span class="hljs-operator">=</span> HtmlToPDFUtil.pdfAddWaterHeaderLogo(base64<br>                , <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;仅供内部参阅&quot;</span><br>                , <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;&quot;</span><br>                , <span class="hljs-literal">false</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-number">141</span>, <span class="hljs-number">30</span>, <span class="hljs-number">20</span>, -<span class="hljs-number">30</span><br>                , <span class="hljs-literal">false</span>, <span class="hljs-string">&quot;&quot;</span><br>                , <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;classpath:template/img/report-background.jpg&quot;</span><br>        );<br><br>        <span class="hljs-keyword">return</span> HtmlToPDFUtil.base64ToPDF(base64O);<br><br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、完整调用示例"><a href="#四、完整调用示例" class="headerlink" title="四、完整调用示例"></a>四、完整调用示例</h1><h2 id="PDF导出接口示例"><a href="#PDF导出接口示例" class="headerlink" title="PDF导出接口示例"></a>PDF导出接口示例</h2><p>此处提供一个导出生成<code>PDF</code>的接口示例供参考：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * 模板PDF导出接口</span><br><span class="hljs-comment">  */</span><br><span class="hljs-meta">@ApiOperation(value = &quot;模板PDF导出接口&quot;, notes = &quot;模板PDF导出接口&quot;, httpMethod = &quot;GET&quot;, produces = &quot;application/octet-stream&quot;)</span><br><span class="hljs-meta">@GetMapping(value = &quot;/exportPdf&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">exportPdf</span><span class="hljs-params">(HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>    <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-type">OutputStream</span> <span class="hljs-variable">out</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 模板中的数据，实际运用从数据库中查询</span><br><br>        SchoolTimeTable.<span class="hljs-type">WeekLesson</span> <span class="hljs-variable">eightAm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SchoolTimeTable</span>.WeekLesson();<br>        eightAm.setMon(<span class="hljs-string">&quot;语文&quot;</span>);<br>        eightAm.setTue(<span class="hljs-string">&quot;数学&quot;</span>);<br>        eightAm.setWed(<span class="hljs-string">&quot;英语&quot;</span>);<br>        eightAm.setThu(<span class="hljs-string">&quot;化学&quot;</span>);<br>        eightAm.setFri(<span class="hljs-string">&quot;物理&quot;</span>);<br><br>        SchoolTimeTable.<span class="hljs-type">WeekLesson</span> <span class="hljs-variable">nineAm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SchoolTimeTable</span>.WeekLesson();<br>        nineAm.setMon(<span class="hljs-string">&quot;数学&quot;</span>);<br>        nineAm.setTue(<span class="hljs-string">&quot;化学&quot;</span>);<br>        nineAm.setWed(<span class="hljs-string">&quot;语文&quot;</span>);<br>        nineAm.setThu(<span class="hljs-string">&quot;物理&quot;</span>);<br>        nineAm.setFri(<span class="hljs-string">&quot;英语&quot;</span>);<br><br>        SchoolTimeTable.<span class="hljs-type">WeekLesson</span> <span class="hljs-variable">tenAm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SchoolTimeTable</span>.WeekLesson();<br>        tenAm.setMon(<span class="hljs-string">&quot;英语&quot;</span>);<br>        tenAm.setTue(<span class="hljs-string">&quot;生物&quot;</span>);<br>        tenAm.setWed(<span class="hljs-string">&quot;语文&quot;</span>);<br>        tenAm.setThu(<span class="hljs-string">&quot;历史&quot;</span>);<br>        tenAm.setFri(<span class="hljs-string">&quot;地理&quot;</span>);<br><br>        SchoolTimeTable.<span class="hljs-type">WeekLesson</span> <span class="hljs-variable">twoPm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SchoolTimeTable</span>.WeekLesson();<br>        twoPm.setMon(<span class="hljs-string">&quot;物理&quot;</span>);<br>        twoPm.setTue(<span class="hljs-string">&quot;历史&quot;</span>);<br>        twoPm.setWed(<span class="hljs-string">&quot;数学&quot;</span>);<br>        twoPm.setThu(<span class="hljs-string">&quot;生物&quot;</span>);<br>        twoPm.setFri(<span class="hljs-string">&quot;英语&quot;</span>);<br><br>        SchoolTimeTable.<span class="hljs-type">WeekLesson</span> <span class="hljs-variable">threePm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SchoolTimeTable</span>.WeekLesson();<br>        threePm.setMon(<span class="hljs-string">&quot;历史&quot;</span>);<br>        threePm.setTue(<span class="hljs-string">&quot;语文&quot;</span>);<br>        threePm.setWed(<span class="hljs-string">&quot;数学&quot;</span>);<br>        threePm.setThu(<span class="hljs-string">&quot;物理&quot;</span>);<br>        threePm.setFri(<span class="hljs-string">&quot;语文&quot;</span>);<br><br>        List&lt;SchoolTimeTable.WeekLesson&gt; weekLessons1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        weekLessons1.add(eightAm);<br>        weekLessons1.add(nineAm);<br>        weekLessons1.add(tenAm);<br><br>        List&lt;SchoolTimeTable.WeekLesson&gt; weekLessons2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        weekLessons2.add(twoPm);<br>        weekLessons2.add(threePm);<br><br>        <span class="hljs-type">SchoolTimeTable</span> <span class="hljs-variable">amData</span> <span class="hljs-operator">=</span> SchoolTimeTable.builder().period(<span class="hljs-string">&quot;上午&quot;</span>).weekLessons(weekLessons1).lessonsSize(weekLessons1.size()).build();<br>        <span class="hljs-type">SchoolTimeTable</span> <span class="hljs-variable">pmData</span> <span class="hljs-operator">=</span> SchoolTimeTable.builder().period(<span class="hljs-string">&quot;下午&quot;</span>).weekLessons(weekLessons2).lessonsSize(weekLessons2.size()).build();<br><br>        List&lt;SchoolTimeTable&gt; schoolTimeTables = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(Collections.singletonList(amData));<br>        schoolTimeTables.add(pmData);<br><br>        HashMap&lt;String, Object&gt; dataMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        dataMap.put(<span class="hljs-string">&quot;schoolTimetable&quot;</span>,schoolTimeTables);<br><br>        <span class="hljs-comment">// 创建数据</span><br>        <span class="hljs-type">DefaultCategoryDataset</span> <span class="hljs-variable">dataset</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultCategoryDataset</span>();<br>        dataset.addValue(<span class="hljs-number">306</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高一&quot;</span>);<br>        dataset.addValue(<span class="hljs-number">295</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高二&quot;</span>);<br>        dataset.addValue(<span class="hljs-number">285</span>, <span class="hljs-string">&quot;女&quot;</span>, <span class="hljs-string">&quot;高三&quot;</span>);<br>        dataset.addValue(<span class="hljs-number">282</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高一&quot;</span>);<br>        dataset.addValue(<span class="hljs-number">301</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高二&quot;</span>);<br>        dataset.addValue(<span class="hljs-number">296</span>, <span class="hljs-string">&quot;男&quot;</span>, <span class="hljs-string">&quot;高三&quot;</span>);<br>        <span class="hljs-comment">// 获取生成的图表</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">recruitStudentImg</span> <span class="hljs-operator">=</span> ImgBase64Util.genBase64ImageByChart(<span class="hljs-string">&quot;招生人数统计&quot;</span>, <span class="hljs-string">&quot;年份&quot;</span>, <span class="hljs-string">&quot;人数&quot;</span>, dataset, <span class="hljs-string">&quot;recruit_student.jpg&quot;</span>);<br>        dataMap.put(<span class="hljs-string">&quot;recruitStudentImg&quot;</span>,recruitStudentImg);<br><br>        baos = PdfTemplateUtil.createPdfByItext(dataMap, <span class="hljs-string">&quot;cover.ftl&quot;</span>);;<br>        <span class="hljs-comment">// 设置响应消息头，告诉浏览器当前响应是一个下载文件</span><br>        response.setContentType( <span class="hljs-string">&quot;application/x-msdownload&quot;</span>);<br>        <span class="hljs-comment">// 告诉浏览器，当前响应数据要求用户干预保存到文件中，以及文件名是什么 如果文件名有中文，必须URL编码</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">fileName</span> <span class="hljs-operator">=</span> URLEncoder.encode(<span class="hljs-string">&quot;光明中学课表.pdf&quot;</span>, <span class="hljs-string">&quot;UTF-8&quot;</span>);<br>        response.setHeader( <span class="hljs-string">&quot;Content-Disposition&quot;</span>, <span class="hljs-string">&quot;attachment;filename=&quot;</span> + fileName);<br>        out = response.getOutputStream();<br>        baos.writeTo(out);<br>        baos.close();<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        e.printStackTrace();<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Exception</span>(<span class="hljs-string">&quot;导出失败：&quot;</span> + e.getMessage());<br>    &#125; <span class="hljs-keyword">finally</span>&#123;<br>        <span class="hljs-keyword">if</span>(baos != <span class="hljs-literal">null</span>)&#123;<br>            baos.close();<br>        &#125;<br>        <span class="hljs-keyword">if</span>(out != <span class="hljs-literal">null</span>)&#123;<br>            out.close();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/" class="category-chain-item">Java后端</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/css/">#css</a>
+      
+        <a href="/tags/springboot/">#springboot</a>
+      
+        <a href="/tags/html/">#html</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>按模板自动化生成PDF</div>
+      <div>http://dunkingcurry30.github.io/2023/08/01/按模板生成PDF/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/26/%E6%91%84%E5%BD%B1%E5%9F%BA%E7%A1%80/" title="摄影基础">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">摄影基础</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/09/Mybatis%20Plus%E6%8F%90%E5%8D%87CRUD%E6%95%88%E7%8E%87%EF%BC%88%E4%BA%8C%EF%BC%89/" title="Mybatis Plus提升CRUD效率（二）">
+                        <span class="hidden-mobile">Mybatis Plus提升CRUD效率（二）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

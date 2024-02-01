@@ -1,0 +1,813 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、MP 自动填充 参考:  自动填充功能 | MyBatis-Plus (baomidou.com)  应用场景对于项目中的各个实体都具备公共字段，过去我们都是分别维护，如今可通过自动填充让业务实体只关注自身业务字段，无需处理公共字段的填充，由此可带来以下优势：  统一实体对象管理，简化实体结构 由MP统一处理，便捷的进行CRUD、主键生成及逻辑删除等操作  首先定义一个基础实体类BaseBO，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis Plus提升CRUD效率（二）">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2023/07/09/Mybatis%20Plus%E6%8F%90%E5%8D%87CRUD%E6%95%88%E7%8E%87%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、MP 自动填充 参考:  自动填充功能 | MyBatis-Plus (baomidou.com)  应用场景对于项目中的各个实体都具备公共字段，过去我们都是分别维护，如今可通过自动填充让业务实体只关注自身业务字段，无需处理公共字段的填充，由此可带来以下优势：  统一实体对象管理，简化实体结构 由MP统一处理，便捷的进行CRUD、主键生成及逻辑删除等操作  首先定义一个基础实体类BaseBO，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-09T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="CRUD">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Mybatis Plus提升CRUD效率（二） - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Mybatis Plus提升CRUD效率（二）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-09 20:00" pubdate>
+          2023年7月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Mybatis Plus提升CRUD效率（二）</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、MP-自动填充"><a href="#一、MP-自动填充" class="headerlink" title="一、MP 自动填充"></a>一、MP 自动填充</h1><blockquote>
+<p>参考:  <a target="_blank" rel="noopener" href="https://baomidou.com/pages/4c6bcf/">自动填充功能 | MyBatis-Plus (baomidou.com)</a></p>
+</blockquote>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>对于项目中的各个实体都具备公共字段，过去我们都是分别维护，如今可通过自动填充让业务实体只关注自身业务字段，无需处理公共字段的填充，由此可带来以下优势：</p>
+<ul>
+<li>统一实体对象管理，简化实体结构</li>
+<li>由MP统一处理，便捷的进行CRUD、主键生成及逻辑删除等操作</li>
+</ul>
+<p>首先定义一个基础实体类BaseBO，里面包含主键、业务主键、创建人、创建时间等公共字段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseDO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 主键ID</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;主键ID&quot;)</span><br>    <span class="hljs-meta">@TableId(value = &quot;id&quot;, type = IdType.AUTO)</span><br>    <span class="hljs-keyword">private</span> Long id;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 业务主键</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;业务主键&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;bid&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> Long bid;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 创建时间</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;创建时间&quot;)</span><br>    <span class="hljs-meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;create_at&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> Date createAt;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 创建人</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;创建人&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;create_by&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-keyword">private</span> String createBy;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 更新时间</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;更新时间&quot;)</span><br>    <span class="hljs-meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;update_at&quot;, fill = FieldFill.INSERT_UPDATE)</span><br>    <span class="hljs-keyword">private</span> Date updateAt;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 更新人</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;更新人&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;update_by&quot;, fill = FieldFill.INSERT_UPDATE)</span><br>    <span class="hljs-keyword">private</span> String updateBy;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 逻辑删除 0-未删除 1-已删除</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@ApiModelProperty(&quot;逻辑删除&quot;)</span><br>    <span class="hljs-meta">@TableField(value = &quot;deleted&quot;, fill = FieldFill.INSERT)</span><br>    <span class="hljs-meta">@TableLogic(value = &quot;0&quot;, delval = &quot;1&quot;)</span><br>    <span class="hljs-keyword">private</span> Integer deleted;<br>  <br>    <span class="hljs-meta">@ApiModelProperty(hidden = true)</span><br>    <span class="hljs-meta">@TableField(exist = false)</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">1L</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对其中的每个字段我们需要实现对应的自动填充功能，如创建人从请求头填入的<code>ThreadLocal</code>获取填充、创建时间及更新时间生成、业务主键生成等，而利用MP我们可以轻松做到这一点。</p>
+<h2 id="填充原理"><a href="#填充原理" class="headerlink" title="填充原理"></a>填充原理</h2><ul>
+<li>实现元对象处理器接口：com.baomidou.mybatisplus.core.handlers.MetaObjectHandler</li>
+</ul>
+<h2 id="业务实践"><a href="#业务实践" class="headerlink" title="业务实践"></a>业务实践</h2><ul>
+<li>注解填充字段 <code>@TableField(.. fill = FieldFill.INSERT)</code></li>
+</ul>
+<p>其中枚举 <code>FieldFill</code> 可选值如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">FieldFill</span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 默认不处理</span><br><span class="hljs-comment">     */</span><br>    DEFAULT,<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 插入填充字段</span><br><span class="hljs-comment">     */</span><br>    INSERT,<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 更新填充字段</span><br><span class="hljs-comment">     */</span><br>    UPDATE,<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 插入和更新填充字段</span><br><span class="hljs-comment">     */</span><br>    INSERT_UPDATE<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>自定义实现类 MyMetaObjectHandler</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBaseMetaObjectHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">MetaObjectHandler</span> &#123;<br><br>    <span class="hljs-meta">@SneakyThrows</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertFill</span><span class="hljs-params">(MetaObject metaObject)</span> &#123;<br>        <span class="hljs-comment">// 设置基础属性为空则自动填充</span><br>        <span class="hljs-type">Object</span> <span class="hljs-variable">bid</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;bid&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(bid))&#123;<br>            setFieldValByName(<span class="hljs-string">&quot;bid&quot;</span>,SequenceUtils.nextId(),metaObject);<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">createAt</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;createAt&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(createAt))&#123;<br>            setFieldValByName(<span class="hljs-string">&quot;createAt&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(),metaObject);<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">createBy</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;createBy&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(createBy))&#123;<br>            setFieldValByName(<span class="hljs-string">&quot;createBy&quot;</span>,UserThreadLocal.getUserIdWithName(),metaObject);<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">updateAt</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;updateAt&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(updateAt))&#123;<br>            metaObject.setValue(<span class="hljs-string">&quot;updateAt&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>());;<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">updateBy</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;updateBy&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(updateAt))&#123;<br>            metaObject.setValue(<span class="hljs-string">&quot;updateBy&quot;</span>, UserThreadLocal.getUserIdWithName());;<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">deleted</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;deleted&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(deleted))&#123;<br>            setFieldValByName(<span class="hljs-string">&quot;deleted&quot;</span>,<span class="hljs-number">0</span>,metaObject);<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">version</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;version&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(version))&#123;<br>            version = SequenceUtils.nextId();<br>            setFieldValByName(<span class="hljs-string">&quot;version&quot;</span>,version,metaObject);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateFill</span><span class="hljs-params">(MetaObject metaObject)</span> &#123;<br>        log.info(<span class="hljs-string">&quot;公共字段自动填充【update】&quot;</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">updateAt</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;updateAt&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(updateAt))&#123;<br>            metaObject.setValue(<span class="hljs-string">&quot;updateAt&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>());;<br>        &#125;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">updateBy</span> <span class="hljs-operator">=</span> getFieldValByName(<span class="hljs-string">&quot;updateBy&quot;</span>, metaObject);<br>        <span class="hljs-keyword">if</span>(ObjectUtils.isEmpty(updateAt))&#123;<br>            metaObject.setValue(<span class="hljs-string">&quot;updateBy&quot;</span>, UserThreadLocal.getUserIdWithName());;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>至此，我们再使用业务实体继承BaseDO，使业务实体只需关注自身业务字段，无需处理公共字段，简单示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 餐品信息维度表</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> DunkingCurry</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@TableName</span> dim_busi_order_info</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">@EqualsAndHashCode(callSuper = true)</span><br><span class="hljs-meta">@TableName(value =&quot;dim_busi_order_info&quot;)</span><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DimBusiOrderInfo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseDO</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 餐品种类</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@TableField(value = &quot;meal_category&quot;)</span><br>    <span class="hljs-keyword">private</span> String mealCategory;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 餐品中文名</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@TableField(value = &quot;meal_name_cn&quot;)</span><br>    <span class="hljs-keyword">private</span> String mealNameCn;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 餐品英文名</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@TableField(value = &quot;meal_name_en&quot;)</span><br>    <span class="hljs-keyword">private</span> String mealNameEn;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 餐品单价</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@TableField(value = &quot;meal_unit_price&quot;)</span><br>    <span class="hljs-keyword">private</span> BigDecimal mealUnitPrice;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="二、MP-代码生成器"><a href="#二、MP-代码生成器" class="headerlink" title="二、MP 代码生成器"></a>二、MP 代码生成器</h1><blockquote>
+<p>适用版本：mybatis-plus-generator 3.5.1 及其以上版本</p>
+</blockquote>
+<h2 id="配置准备"><a href="#配置准备" class="headerlink" title="配置准备"></a>配置准备</h2><ul>
+<li>基础Entity类 BaseDO</li>
+<li>自动填充实现类 MyMetaObjectHandler</li>
+<li>以下依赖引入</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- Mybatis-plus-join 依赖  --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.github.yulichang<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mybatis-plus-join-boot-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.4.5<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-comment">&lt;!-- Mybatis-plus generator--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.baomidou<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mybatis-plus-generator<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.5.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-comment">&lt;!-- free maker 模板--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.freemarker<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>freemarker<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，此处使用了 Mybatis-plus-join 做联表增强，若只使用MP功能可不引入，对应在下述配置中修改对应BaseMapper、BaseService即可</p>
+</blockquote>
+<h2 id="自定义代码生成器实现"><a href="#自定义代码生成器实现" class="headerlink" title="自定义代码生成器实现"></a>自定义代码生成器实现</h2><p>具体代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Mybatis Plus 代码生成器</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> : DunkingCurry</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@createTime</span> : 15/7/2023 下午12:42</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MpFastAutoGenerator</span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 执行 run</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br><br>        <span class="hljs-comment">// 需要生成代码的数据表清单, 英文逗号,分隔</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">tableNames</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;test_table_template&quot;</span>;<br><br>        <span class="hljs-comment">// 数据源配置</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;jdbc:mysql://127.0.0.1:3306/devdb?serverTimezone=UTC&amp;characterEncoding=utf8&amp;useUnicode=true&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">username</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;root&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">password</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;root&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">projectPath</span> <span class="hljs-operator">=</span> System.getProperty(<span class="hljs-string">&quot;user.dir&quot;</span>);<br><br>        FastAutoGenerator<br>                <span class="hljs-comment">// 数据源配置</span><br>                .create(url, username, password)<br>                <span class="hljs-comment">// 全局配置</span><br>                .globalConfig(builder -&gt; builder.fileOverride()<br>                        .outputDir(projectPath + <span class="hljs-string">&quot;/src/main/java&quot;</span>)<br>                        .disableOpenDir()<br>                        .author(<span class="hljs-string">&quot;DunkingCurry&quot;</span>)<br>                        .enableSwagger()<br>                        .dateType(DateType.ONLY_DATE)<br>                        .commentDate(<span class="hljs-string">&quot;yyyy-MM-dd&quot;</span>))<br>                <span class="hljs-comment">// 包配置</span><br>                .packageConfig(builder -&gt; builder.parent(<span class="hljs-string">&quot;com.learn.sc.springbootdemo&quot;</span>)<br>                        .entity(<span class="hljs-string">&quot;dao.entity&quot;</span>)<br>                        .service(<span class="hljs-string">&quot;service&quot;</span>)<br>                        .serviceImpl(<span class="hljs-string">&quot;service.impl&quot;</span>)<br>                        .mapper(<span class="hljs-string">&quot;dao.mapper&quot;</span>)<br>                        .controller(<span class="hljs-string">&quot;web.controller&quot;</span>)<br>                        <span class="hljs-comment">// 自定义Mapper XML位置至resource目录下</span><br>                        .pathInfo(Collections.singletonMap(OutputFile.mapperXml, projectPath + <span class="hljs-string">&quot;/src/main/resources/mapper/default&quot;</span>)))<br>                <span class="hljs-comment">// 策略配置</span><br>                .strategyConfig(builder -&gt; builder<br>                        <span class="hljs-comment">// -- 生成表清单 --</span><br>                        .addInclude(tableNames.trim().split(<span class="hljs-string">&quot;,&quot;</span>))<br>                        <span class="hljs-comment">// -- Entity 策略配置 --</span><br>                        .entityBuilder()<br>                        <span class="hljs-comment">// 设置entity父类</span><br>                        .superClass(BaseDO.class)<br>                        <span class="hljs-comment">// 设置父类公共字段</span><br>                        .addSuperEntityColumns(<span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-string">&quot;bid&quot;</span>, <span class="hljs-string">&quot;created_by&quot;</span>, <span class="hljs-string">&quot;created_at&quot;</span>, <span class="hljs-string">&quot;updated_by&quot;</span>, <span class="hljs-string">&quot;updated_at&quot;</span>, <span class="hljs-string">&quot;deleted&quot;</span>, <span class="hljs-string">&quot;version&quot;</span>)<br>                        .formatFileName(<span class="hljs-string">&quot;%sDO&quot;</span>)<br>                        .disableSerialVersionUID()<br>                        .enableChainModel()<br>                        .enableLombok()<br>                        .enableTableFieldAnnotation()<br>                        .versionColumnName(<span class="hljs-string">&quot;version&quot;</span>)<br>                        <span class="hljs-comment">// 逻辑删除字段</span><br>                        .logicDeleteColumnName(<span class="hljs-string">&quot;deleted&quot;</span>)<br>                        <span class="hljs-comment">// 设置字段映射为下划线转驼峰</span><br>                        .naming(NamingStrategy.underline_to_camel)<br>                        .columnNaming(NamingStrategy.underline_to_camel)<br>                        <span class="hljs-comment">// -- Controller --</span><br>                        .controllerBuilder()<br>                        .enableHyphenStyle()<br>                        .enableRestStyle()<br>                        .formatFileName(<span class="hljs-string">&quot;%sController&quot;</span>)<br>                        <span class="hljs-comment">// -- Service 策略配置 --</span><br>                        .serviceBuilder()<br>                        .superServiceClass(MPJBaseService.class)<br>                        .superServiceImplClass(MPJBaseServiceImpl.class)<br>                        .formatServiceFileName(<span class="hljs-string">&quot;%sService&quot;</span>)<br>                        .formatServiceImplFileName(<span class="hljs-string">&quot;%sServiceImpl&quot;</span>)<br>                        <span class="hljs-comment">// -- Mapper 策略配置 --</span><br>                        .mapperBuilder()<br>                        .superClass(MPJBaseMapper.class)<br>                        .enableMapperAnnotation()<br>                        .enableBaseResultMap()<br>                        .enableBaseColumnList()<br>                        .formatMapperFileName(<span class="hljs-string">&quot;%sMapper&quot;</span>)<br>                        .formatXmlFileName(<span class="hljs-string">&quot;%sMapper&quot;</span>))<br>            	<span class="hljs-comment">// 使用freemaker模板引擎, 需引入对应依赖</span><br>                .templateEngine(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FreemarkerTemplateEngine</span>())<br>                <span class="hljs-comment">// 执行</span><br>                .execute();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：以上包含配置可参阅 <a target="_blank" rel="noopener" href="https://baomidou.com/pages/981406/#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE-datasourceconfig">代码生成器配置新 | MyBatis-Plus</a> 进行自定义</p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/" class="category-chain-item">Java后端</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CRUD/">#CRUD</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Mybatis Plus提升CRUD效率（二）</div>
+      <div>http://dunkingcurry30.github.io/2023/07/09/Mybatis Plus提升CRUD效率（二）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月9日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/01/%E6%8C%89%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90PDF/" title="按模板自动化生成PDF">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">按模板自动化生成PDF</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/06/Mybatis%20Plus%E6%8F%90%E5%8D%87CRUD%E6%95%88%E7%8E%87%EF%BC%88%E4%B8%80%EF%BC%89/" title="Mybatis Plus提升CRUD效率（一）">
+                        <span class="hidden-mobile">Mybatis Plus提升CRUD效率（一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

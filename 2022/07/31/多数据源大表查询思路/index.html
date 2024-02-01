@@ -1,0 +1,868 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Dunking Curry">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、需求概述前台支持根据条件查询多项测试效能数据指标数据报表 需求背景 需要查询的各项数据指标来自不同数据库的多张数据源表 数据源表存在大表（1000w-2亿数据量不等） 部分表日增量超过100w，且需要每日同步 前台查询响应时间不能太长  需求分析工欲善其事，必先利其器。依据上述需求背景，设计方案如下：  多数据源表同步至统一的数据仓库： 存量数据同步：因存量数据量大，将datax 环境打包成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="效能指标数据报表查询">
+<meta property="og:url" content="http://dunkingcurry30.github.io/2022/07/31/%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%A7%E8%A1%A8%E6%9F%A5%E8%AF%A2%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="DunkingCurry&#39;s Blog">
+<meta property="og:description" content="一、需求概述前台支持根据条件查询多项测试效能数据指标数据报表 需求背景 需要查询的各项数据指标来自不同数据库的多张数据源表 数据源表存在大表（1000w-2亿数据量不等） 部分表日增量超过100w，且需要每日同步 前台查询响应时间不能太长  需求分析工欲善其事，必先利其器。依据上述需求背景，设计方案如下：  多数据源表同步至统一的数据仓库： 存量数据同步：因存量数据量大，将datax 环境打包成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%A7%E8%A1%A8%E6%9F%A5%E8%AF%A2%E6%80%9D%E8%B7%AF/1659012565648.png">
+<meta property="article:published_time" content="2022-07-31T20:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-01T14:38:44.593Z">
+<meta property="article:author" content="Dunking Curry">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="oracle">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://dunkingcurry30.github.io/blog-assets/%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%A7%E8%A1%A8%E6%9F%A5%E8%AF%A2%E6%80%9D%E8%B7%AF/1659012565648.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>效能指标数据报表查询 - DunkingCurry&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dunkingcurry30.github.io","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"(=•ω•=)","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome to DunkingCurry&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/city.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="效能指标数据报表查询"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-31 20:00" pubdate>
+          2022年7月31日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          21 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">效能指标数据报表查询</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="一、需求概述"><a href="#一、需求概述" class="headerlink" title="一、需求概述"></a>一、需求概述</h1><p>前台支持根据条件查询多项测试效能数据指标数据报表</p>
+<h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><ul>
+<li>需要查询的各项数据指标来自不同数据库的多张数据源表</li>
+<li>数据源表存在大表（<code>1000w</code>-<code>2亿</code>数据量不等）</li>
+<li>部分表日增量超过<code>100w</code>，且需要每日同步</li>
+<li>前台查询响应时间不能太长</li>
+</ul>
+<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>工欲善其事，必先利其器。依据上述需求背景，设计方案如下：</p>
+<ul>
+<li><em>多数据源表同步至统一的数据仓库</em>：<ul>
+<li>存量数据同步：因存量数据量大，将<code>datax</code> 环境打包成 <code>docker</code> 镜像，使用 <code>jenkins</code> 调度多台服务器执行多个容器实现多表并行同步，缩短数据同步时间</li>
+<li>每日的增量数据同步：使用 <code>crontab</code> 配合 <code>datax</code> 实现</li>
+</ul>
+</li>
+<li><em>中间表减少联表计算</em>：为避免指标查询过程中过多的连表操作，根据指标所需字段设计中间表（需考虑索引，这能极大程度提高查询效率），通过 <code>Java</code> <strong>定时任务提前对数据源表进行处理</strong>，做好部分计算和汇总至中间表中，操作时间在数据源表同步完成后</li>
+<li><em>多线程加快查询</em>：<code>Java</code> 查询中间表，计算出各类指标数据，一般不存在依赖关系的指标可以<strong>多线程</strong>并发计算，最后汇总结果返回，将查询时间由<strong>多个查询的时间和</strong>优化为<strong>最长查询所需时间</strong></li>
+</ul>
+<p>现在我们有了初步方案，接下来就可以开始详细设计开发了。</p>
+<h1 id="二、实战开发"><a href="#二、实战开发" class="headerlink" title="二、实战开发"></a>二、实战开发</h1><h2 id="1-多数据源表同步"><a href="#1-多数据源表同步" class="headerlink" title="1. 多数据源表同步"></a>1. 多数据源表同步</h2><p>在需求分析中我们已经了解到，本次所需要数据来自于多个不同数据库的数据源表。当然<code>oracle</code>  的 <code>dblink</code> 、<code>mysql</code> 的 <code>federated</code> 都可以帮我们实现在一个数据库实例中访问，但这种方式存在以下明显的缺陷：</p>
+<ul>
+<li>链接仅限同类数据库，即 <code>oracle</code> 只能连 <code>oracle</code> ，<code>mysql</code> 只能连 <code>mysql</code>，如果存在从 <code>oracle</code> 同步到 <code>mysql</code> 的情况就抓瞎了</li>
+<li>链接依赖于网络，速度不稳定且比同库访问慢很多</li>
+<li>应用自身无备份数据，无法自定义数据处理（例如指标数据通常需要看不同年份的环比数据，而数据源表的清理周期不一定与需求查询周期一致）</li>
+<li>直接对数据源表进行查询，也增大了数据库服务器的压力</li>
+</ul>
+<p>因此基于以上缺点，同步数据库至统一的数据仓库显然是更好的选择：</p>
+<ul>
+<li><code>datax</code> 支持同步不同类型的数据库，即可以从 <code>oracle</code> 同步至 <code>mysql</code> </li>
+<li><code>datax</code> 数据同步效率高，数据量同步速率可达<code>1w/s</code> </li>
+<li>统一的数据仓库也更方便数据的管理，和自定义处理（例如可根据需要对同步的数据源表增加索引）</li>
+<li>中间表的计算也基于同一数据库的表，效率更高</li>
+</ul>
+<p><code>datax</code> 同步多数据源表操作可参考该文章：<a href="/2022/07/29/%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E5%B7%A5%E5%85%B7DataX%E7%9A%84%E4%BD%BF%E7%94%A8">高效数据同步工具 DataX 的使用</a> </p>
+<blockquote>
+<p>【注】：由于表数据量大，必然涉及数据周期性清理，常规处理方式，数据保留周期2年，2年之前的数据移入历史表归档。</p>
+</blockquote>
+<h2 id="2-中间表减少联表计算"><a href="#2-中间表减少联表计算" class="headerlink" title="2. 中间表减少联表计算"></a>2. 中间表减少联表计算</h2><p>在数据源表同步至数据仓库后，一些指标涉及到多张表的复杂查询，这仍会大大降低查询效率，例如以下场景：</p>
+<p>现需统计A应用在6月版本测试案例在6月的<code>自动化案例执行通过率</code>，指标计算公式如下：</p>
+<blockquote>
+<p>​     <strong>自动化案例执行通过率</strong> &#x3D; <strong>自动化执行通过的案例数</strong> &#x2F; <strong>当前版本案例总数</strong></p>
+</blockquote>
+<ul>
+<li><strong>自动化案例执行通过</strong>：案例下关联的<strong>全部自动化脚本执行通过</strong></li>
+<li><strong>自动化脚本执行通过</strong>：该脚本在6月内存在执行通过的记录，即多次调度有一次通过即算作通过</li>
+</ul>
+<p><img src="/../blog-assets/%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%A7%E8%A1%A8%E6%9F%A5%E8%AF%A2%E6%80%9D%E8%B7%AF/1659012565648.png" srcset="/img/loading.gif" lazyload alt="1659012565648"></p>
+<p>以上计算逻辑图<strong>从右往左</strong>即为计算过程，该场景涉及到以下数据源表：</p>
+<ul>
+<li><strong>案例表</strong>：包含案例和应用的关联关系；</li>
+<li><strong>案例与自动化脚本挂接关联表</strong>：包含案例和自动化脚本的关联关系；</li>
+<li><strong>自动化脚本的执行明细表</strong>：包含脚本在指定时间内的执行记录。</li>
+</ul>
+<p>通过以上信息，我们可以知道<code>自动化脚本通过率</code>这个指标的查询：</p>
+<ul>
+<li>涉及到三张表的<strong>关联嵌套查询</strong>；</li>
+<li>查询中包含着两个<strong>计算</strong>（案例是否通过，脚本是否执行通过）；</li>
+<li>实际上脚本执行明细表数据量是非常大，实际单日增量在70w左右，存量数据上亿级别，即使有索引对该表的直接查询也很慢；</li>
+</ul>
+<p>因此，如果能提前将一些数据计算出来放入一张中间表，就能极大减少查询时间，在这个场景里，可以新建一张中间表包含以下字段：</p>
+<table>
+<thead>
+<tr>
+<th>script_id</th>
+<th>month</th>
+<th>is_pass</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>脚本ID</td>
+<td>按月维度计算</td>
+<td>脚本是否执行通过标志</td>
+</tr>
+</tbody></table>
+<p>该表记录了某个脚本在某个月份的执行通过信息，显然<code>is_allpass</code> 即为我们需要提前计算的值，而该值需要：</p>
+<ul>
+<li>因为每天都会有新增的脚本和调度记录，因此需要每日计算；</li>
+<li>且计算需要在源表数据同步之后。</li>
+</ul>
+<p>综上，这里考虑将计算逻辑和将计算记录插入中间表操作，通过 <code>Springboot</code> 中定时任务注解 <code>@Schedule</code> 实现，实现方式较为简单可参考<a href="/2022/07/27/Java%E4%B8%AD%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%AE%9E%E7%8E%B0">Java 中的定时任务实现</a> 。</p>
+<h2 id="3-多线程汇总查询"><a href="#3-多线程汇总查询" class="headerlink" title="3. 多线程汇总查询"></a>3. 多线程汇总查询</h2><p>经过前面两个步骤，我们通过数据同步，建立索引、中间表的方式一定程度上解决了查询速度慢，查询逻辑复杂的问题。但在实际实践操作中，查询效率仍旧不够理想，原因在于一次往往是查询多个需要复杂计算逻辑的指标，虽然我们优化了单个指标的查询，但如果采用传统串行执行查询的方式，单次查询的效率为<strong>多次查询时间之和</strong>，这显然是不科学的。因此我们引入java中的多线程处理：</p>
+<ul>
+<li>有<code>n</code> 个指标需要同时查询，就使用线程池创建包含<code>n</code> 个线程的线程池；</li>
+<li>利用 <code>CountDownLatch</code> 来汇总多个线程执行结果，统一返回至前端。</li>
+</ul>
+<p>以上操作具体实现可参考 <a href="/2022/07/06/%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8(%E4%B8%80)">线程池创建</a> 和 <a href="/2022/07/30/CountDownLatch%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8C%E4%B8%80%E4%BB%BB%E5%8A%A1">CountDownLatch多线程执行同一任务</a> ，至此我们将查询时间由<strong>多个查询的时间和</strong>优化为<strong>最长查询所需时间</strong>，查询效率优化到这也暂告一段落。</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>本文用来记录一次指标查询需求的分析、设计、实现过程，由于能力和经验不足，方案必然还存在极大的优化空间。整个过程下来：</p>
+<ol>
+<li>感受最深的还是数据库表结构的设计，大表字段、索引、分区的设计对数据操作的效率、数据操作的逻辑都存在巨大的影响，良好的表结构设计不仅能提高查询效率，也能简化查询逻辑，让整个处理链条更为清晰，方便维护；</li>
+<li>本次没有涉及到分库分表，但我们知道当表数据超过千万量级对数据库的性能已经会产生较大影响了，具体可参考  <a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_48383346/article/details/116999608?ops_request_misc=%7B%22request_id%22:%22165925327116781432942421%22,%22scm%22:%2220140713.130102334..%22%7D&request_id=165925327116781432942421&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-116999608-null-null.142%5Ev35%5Eexperiment_2_v1&utm_term=%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8&spm=1018.2226.3001.4187">分库分表原因</a> ，这也是后续优化改进的方向；</li>
+<li>该方案中使用了数据源表和中间表，借此机会初步了解了下 <code>数据仓库（data warehouse）</code> ，数仓的架构体系应该是该类业务决策性需求的标准答案，后续应该着重学习这块的内容。</li>
+</ol>
+<p><strong>道阻且长，行则将至</strong>。</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/" class="category-chain-item">Java后端</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Java%E5%90%8E%E7%AB%AF/%E5%AE%9E%E6%88%98%E7%B3%BB%E5%88%97/" class="category-chain-item">实战系列</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/docker/">#docker</a>
+      
+        <a href="/tags/java/">#java</a>
+      
+        <a href="/tags/mysql/">#mysql</a>
+      
+        <a href="/tags/oracle/">#oracle</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>效能指标数据报表查询</div>
+      <div>http://dunkingcurry30.github.io/2022/07/31/多数据源大表查询思路/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Dunking Curry</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/01/Jenkins%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="DevOps（二）初识 Jenkins">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DevOps（二）初识 Jenkins</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/30/CountDownLatch%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8C%E4%B8%80%E4%BB%BB%E5%8A%A1/" title="CountDownLatch 多线程执行同一任务">
+                        <span class="hidden-mobile">CountDownLatch 多线程执行同一任务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://unpkg.com/valine@1.4.18/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"4kul0VeeeIYgfa6KtHJ08dvb-9Nh9j0Va","appKey":"hMrzn1Le69yRYRopC8MHigH4","path":"window.location.pathname","placeholder":"快来一起讨论吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":true,"recordIP":true,"serverURLs":"https://4kul0vee.lc-cn-e1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"><span>蜀ICP备2023016515号</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
